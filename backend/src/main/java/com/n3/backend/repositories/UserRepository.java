@@ -1,2 +1,13 @@
-package com.n3.backend.repositories;public class UserRepository {
+package com.n3.backend.repositories;
+
+import com.n3.backend.entities.UserEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserRepository extends JpaRepository<UserEntity, Integer> {
+    public UserEntity getById(int id);
+
+    public UserEntity getByEmail(String email);
+
 }

@@ -1,32 +1,48 @@
 package com.n3.backend.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import org.springframework.boot.context.properties.bind.DefaultValue;
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
-import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
-public class User {
+@Table(name = "users")
+public class UserEntity implements UserDetails {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(nullable = false)
     private int id;
+    @Column()
     private String fullname;
+    @Column()
     private String password;
+    @Column(columnDefinition = "0")
     private int gender;
-    private Date date_of_birth;
+    @Column(name = "date_of_birth")
+    private Date dateOfBirth;
+    @Column
     private String address;
+    @Column
     private String email;
-    private String phone_number;
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    @Column(columnDefinition = "int default 0", name = "is_admin")
+    private int isAdmin;
+    @Column(columnDefinition = "int default 0", name = "is_active")
+    private int isActive;
     @Column(columnDefinition = "int default 0")
-    private int is_admin;
-    @Column(columnDefinition = "int default 0")
-    private int is_active;
     private Double balance;
-    @Column(columnDefinition = "string default employee")
+    @Column(columnDefinition = "varchar(255) default 'employee' ")
     private String position;
+    @CreationTimestamp
+    private Date createdAt;
+    @UpdateTimestamp
+    private Date updatedAt;
 
     public void setId(int id) {
         this.id = id;
@@ -44,8 +60,18 @@ public class User {
         this.fullname = fullname;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 
     public void setPassword(String password) {
@@ -58,14 +84,6 @@ public class User {
 
     public void setGender(int gender) {
         this.gender = gender;
-    }
-
-    public Date getDate_of_birth() {
-        return date_of_birth;
-    }
-
-    public void setDate_of_birth(Date date_of_birth) {
-        this.date_of_birth = date_of_birth;
     }
 
     public String getAddress() {
@@ -84,35 +102,11 @@ public class User {
         this.email = email;
     }
 
-    public String getPhone_number() {
-        return phone_number;
-    }
-
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
-    }
-
-    public int getIs_admin() {
-        return is_admin;
-    }
-
-    public void setIs_admin(int is_admin) {
-        this.is_admin = is_admin;
-    }
-
-    public int getIs_active() {
-        return is_active;
-    }
-
-    public void setIs_active(int is_active) {
-        this.is_active = is_active;
-    }
-
-    public Double getBalance() {
+    public double getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 
@@ -122,5 +116,55 @@ public class User {
 
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public int getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(int isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
+    public int getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(int isActive) {
+        this.isActive = isActive;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @CreationTimestamp
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    @UpdateTimestamp
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
