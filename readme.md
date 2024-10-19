@@ -11,12 +11,12 @@ response:
         fullname
         gender: int = 0, 1, 2 (chua biet, nam, nu)
         email
-        phone_number
+        phoneNumber
         address
-        date_of_birth
+        dateOfBirth
         ...
     },
     token,
-    expired,
+    expiredAt,
     message
 }
