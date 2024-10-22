@@ -19,9 +19,9 @@ public class User {
         setEmail(user.getEmail());
         setFullname(user.getFullname());
         setPosition(user.getPosition());
-        setCreatedAt(user.getCreatedAt().toLocalDate().toString());
+        setCreatedAt(user.getCreatedAt().toLocalDateTime().toString());
         setPhoneNumber(user.getPhoneNumber());
-        setDateOfBirth(user.getDateOfBirth().toLocalDate().toString());
+        setDateOfBirth(user.getDateOfBirth() != null ? user.getDateOfBirth().toLocalDate().toString() : null);
     }
     public String getFullname() {
         return fullname;

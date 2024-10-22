@@ -8,6 +8,7 @@ import java.sql.Date;
 @Table(name = "tickets")
 public class TicketEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @ManyToOne
     @JoinColumn(name = "ticket_type_id", nullable = false)

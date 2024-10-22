@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(name = "action_history")
 public class ActionHistoryEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @ManyToOne
     @JoinColumn(name = "car_id", nullable = false)

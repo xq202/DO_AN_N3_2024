@@ -9,6 +9,7 @@ import java.sql.Date;
 @Table(name = "invoices")
 public class InvoiceEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

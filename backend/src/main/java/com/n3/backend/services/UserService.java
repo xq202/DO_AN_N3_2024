@@ -13,4 +13,15 @@ public class UserService {
     public UserEntity getByEmail(String email){
         return userRepository.getByEmail(email);
     }
+
+    public UserEntity addNewUser(UserEntity user){
+        try {
+            userRepository.save(user);
+            return user;
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
 }

@@ -4,11 +4,16 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -24,7 +29,7 @@ public class UserEntity implements UserDetails {
     @Column(columnDefinition = "0")
     private int gender;
     @Column(name = "date_of_birth")
-    private Date dateOfBirth;
+    private Date dateOfBirth = null;
     @Column
     private String address;
     @Column
@@ -40,9 +45,18 @@ public class UserEntity implements UserDetails {
     @Column(columnDefinition = "varchar(255) default 'employee' ")
     private String position;
     @CreationTimestamp
-    private Date createdAt;
+    private Timestamp createdAt;
     @UpdateTimestamp
-    private Date updatedAt;
+    private Timestamp updatedAt;
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
+
+    public Set<String> getRoles() {
+        if(isAdmin==1) return Set.of("ROLE_ADMIN");
+        else return Set.of("ROLE_USER");
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -62,7 +76,9 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return getRoles().stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     public String getPassword() {
@@ -150,21 +166,21 @@ public class UserEntity implements UserDetails {
         this.isActive = isActive;
     }
 
-    public Date getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
     @CreationTimestamp
-    public Date getUpdatedAt() {
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
     @UpdateTimestamp
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

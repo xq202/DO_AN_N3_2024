@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "invoice_detail")
 public class InvoiceDetailEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @OneToOne
     @JoinColumn(name = "ticket_id", referencedColumnName = "id")

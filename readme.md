@@ -7,16 +7,19 @@ param:
 response:
 {
     status: true : false,
-    user: {
-        fullname
-        gender: int = 0, 1, 2 (chua biet, nam, nu)
-        email
-        phoneNumber
-        address
-        dateOfBirth
-        ...
-    },
-    token,
-    expiredAt,
-    message
+    responseCode: int,
+    message,
+    data: {
+        user: {
+            fullname
+            gender: int = 0, 1, 2 (chua biet, nam, nu)
+            email
+            phoneNumber
+            address
+            dateOfBirth
+            ...
+        },
+        token,
+        expiredAt,
+    }
 }

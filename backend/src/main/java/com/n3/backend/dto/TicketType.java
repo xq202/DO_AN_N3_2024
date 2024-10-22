@@ -1,16 +1,19 @@
 package com.n3.backend.dto;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 
-public class TicketTypeResponse {
+public class TicketType {
     private String name;
     private double price;
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
-    public TicketTypeResponse(String name, double price) {
+    public TicketType(String name, double price, Timestamp createdAt, Timestamp updatedAt) {
         this.name = name;
         this.price = price;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public String getName() {
@@ -29,19 +32,4 @@ public class TicketTypeResponse {
         this.price = price;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

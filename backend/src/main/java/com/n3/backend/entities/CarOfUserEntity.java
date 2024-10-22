@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 @Entity
 public class CarOfUserEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     @OneToOne
     @JoinColumn(name = "car_id", nullable = false)
