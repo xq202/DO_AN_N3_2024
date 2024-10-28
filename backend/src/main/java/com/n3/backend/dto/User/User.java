@@ -1,4 +1,4 @@
-package com.n3.backend.dto;
+package com.n3.backend.dto.User;
 
 import com.n3.backend.entities.UserEntity;
 
