@@ -1,4 +1,4 @@
-package com.n3.backend.dto;
+package com.n3.backend.dto.Auth;
 
 public class LoginRequest {
     public String email;

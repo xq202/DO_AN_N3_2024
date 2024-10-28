@@ -1,4 +1,6 @@
-package com.n3.backend.dto;
+package com.n3.backend.dto.Auth;
+
+import com.n3.backend.dto.User.User;
 
 public class LoginResponse {
     public User user;
