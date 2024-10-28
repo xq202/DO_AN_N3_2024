@@ -3,6 +3,8 @@ package com.n3.backend.entities;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
+
 @Entity
 @Table(name = "action_history")
 public class ActionHistoryEntity {
@@ -15,5 +17,40 @@ public class ActionHistoryEntity {
     String action;
     @CreationTimestamp
     @Column(name = "created_at")
-    private String createdAt;
+    private Timestamp createdAt;
+
+    public ActionHistoryEntity() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public CarEntity getCar() {
+        return car;
+    }
+
+    public void setCar(CarEntity car) {
+        this.car = car;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
 }
