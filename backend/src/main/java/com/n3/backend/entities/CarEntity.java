@@ -1,6 +1,10 @@
 package com.n3.backend.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "cars")
@@ -11,11 +15,21 @@ public class CarEntity {
     private String name;
     @Column(nullable = false)
     private String code;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
+    @CreationTimestamp
+    private java.sql.Timestamp createdAt;
+    @UpdateTimestamp
+    private java.sql.Timestamp updatedAt;
 
     public CarEntity(int id, String name, String code) {
         this.id = id;
         this.name = name;
         this.code = code;
+    }
+    public CarEntity(int id) {
+        this.id = id;
     }
 
     public CarEntity() {
@@ -44,5 +58,21 @@ public class CarEntity {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
