@@ -1,14 +1,15 @@
 package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ApiResponse;
-import com.n3.backend.dto.TicketType;
-import com.n3.backend.dto.TicketTypeRequest;
+import com.n3.backend.dto.TicketType.TicketType;
+import com.n3.backend.dto.TicketType.TicketTypeRequest;
 import com.n3.backend.services.TicketTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("ticket-type")
+@RequestMapping("/ticket-type")
 public class TicketTypeController {
     @Autowired
     TicketTypeService ticketTypeService;
@@ -23,7 +24,20 @@ public class TicketTypeController {
         return ticketTypeService.getAll();
     }
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TicketType> addNew(TicketTypeRequest request){
         return ticketTypeService.addNewTicketType(request);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<TicketType> update(@PathVariable("id") int id, TicketTypeRequest request){
+        return ticketTypeService.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse delete(@PathVariable("id") int id){
+        return ticketTypeService.deleteItem(id);
     }
 }

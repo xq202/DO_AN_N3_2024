@@ -1,4 +1,4 @@
-package com.n3.backend.dto;
+package com.n3.backend.dto.TicketType;
 
 public class TicketTypeRequest {
     private String name;

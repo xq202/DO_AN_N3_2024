@@ -1,14 +1,13 @@
 package com.n3.backend.services;
 
 import com.n3.backend.dto.ApiResponse;
-import com.n3.backend.dto.TicketTypeRequest;
-import com.n3.backend.dto.TicketType;
+import com.n3.backend.dto.TicketType.TicketTypeRequest;
+import com.n3.backend.dto.TicketType.TicketType;
 import com.n3.backend.entities.TicketTypeEntity;
 import com.n3.backend.repositories.TicketTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,7 +19,7 @@ public class TicketTypeService {
         try {
             TicketTypeEntity ticketType = new TicketTypeEntity(0, request.getName(), request.getPrice());
             repository.save(ticketType);
-            return new ApiResponse<TicketType>(true, 200, new TicketType(request.getName(), request.getPrice(), null, null), "success");
+            return new ApiResponse<TicketType>(true, 200, new TicketType(ticketType), "success");
         }
         catch (Exception e){
             return new ApiResponse<>(false, 400, null, e.getMessage());
@@ -30,7 +29,7 @@ public class TicketTypeService {
     public ApiResponse<TicketType> getOneById(int id){
         try {
             TicketTypeEntity ticketTypeEntity = repository.getOne(id);
-            TicketType ticketType = new TicketType(ticketTypeEntity.getName(), ticketTypeEntity.getPrice(), ticketTypeEntity.getCreatedAt(), ticketTypeEntity.getUpdatedAt());
+            TicketType ticketType = new TicketType(ticketTypeEntity);
             return new ApiResponse<TicketType>(true, 200, ticketType, "success");
         }
         catch(Exception e){
@@ -58,4 +57,18 @@ public class TicketTypeService {
             return new ApiResponse(false, 400, null, e.getMessage());
         }
     }
+
+    public ApiResponse<TicketType> update(int id, TicketTypeRequest request){
+        try {
+            TicketTypeEntity ticketType = repository.getOne(id);
+            ticketType.setName(request.getName());
+            ticketType.setPrice(request.getPrice());
+            repository.save(ticketType);
+            return new ApiResponse<TicketType>(true, 200, new TicketType(ticketType), "success");
+        }
+        catch (Exception e){
+            return new ApiResponse<>(false, 400, null, e.getMessage());
+        }
+    }
+
 }

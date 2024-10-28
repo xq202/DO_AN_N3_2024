@@ -16,6 +16,8 @@ public class TicketTypeEntity {
     private String name;
     @Column(nullable = false)
     private double price;
+    @Column(nullable = false)
+    private int duration;
     @CreationTimestamp
     private Timestamp createdAt;
     @UpdateTimestamp
@@ -29,6 +31,10 @@ public class TicketTypeEntity {
 
     public TicketTypeEntity() {
 
+    }
+
+    public TicketTypeEntity(int ticketTypeId) {
+        this.id = ticketTypeId;
     }
 
     public int getId() {
@@ -69,5 +75,13 @@ public class TicketTypeEntity {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 }
