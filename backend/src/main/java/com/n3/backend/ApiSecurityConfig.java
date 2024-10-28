@@ -1,5 +1,7 @@
 package com.n3.backend;
 
+import com.n3.backend.config.CustomAccessDeniedHandler;
+import com.n3.backend.config.CustomAuthenticationPoint;
 import com.n3.backend.config.JwtAuthFilter;
 import com.n3.backend.repositories.UserRepository;
 import com.n3.backend.services.UserService;
@@ -23,6 +25,13 @@ public class ApiSecurityConfig {
 
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
+    private final CustomAuthenticationPoint customAuthenticationPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
+    public ApiSecurityConfig(CustomAuthenticationPoint customAuthenticationPoint, CustomAccessDeniedHandler customAccessDeniedHandler) {
+        this.customAuthenticationPoint = customAuthenticationPoint;
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,8 +47,10 @@ public class ApiSecurityConfig {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-//                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                .authenticationEntryPoint(customAuthenticationPoint)
+                .accessDeniedHandler(customAccessDeniedHandler);
         return http.build();
     }
 }
