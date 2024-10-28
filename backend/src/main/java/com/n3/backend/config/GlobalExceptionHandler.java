@@ -12,4 +12,9 @@ public class GlobalExceptionHandler {
     public ApiResponse handleMethodNotSupported(HttpRequestMethodNotSupportedException e){
         return new ApiResponse<>(false, HttpStatus.METHOD_NOT_ALLOWED.value(), null, "Method " + e.getMethod() + " not supported for this endpoint.");
     }
+
+    @ExceptionHandler(Exception.class)
+    public ApiResponse handleException(Exception e){
+        return new ApiResponse<>(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), null, e.getMessage());
+    }
 }
