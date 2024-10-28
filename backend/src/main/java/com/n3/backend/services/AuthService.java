@@ -3,6 +3,10 @@ package com.n3.backend.services;
 import com.n3.backend.config.JwtUtil;
 import com.n3.backend.config.PasswordUtil;
 import com.n3.backend.dto.*;
+import com.n3.backend.dto.Auth.LoginRequest;
+import com.n3.backend.dto.Auth.LoginResponse;
+import com.n3.backend.dto.Auth.RegisterRequest;
+import com.n3.backend.dto.User.User;
 import com.n3.backend.entities.UserEntity;
 import com.n3.backend.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -10,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 @Service
@@ -66,7 +69,7 @@ public class AuthService {
 
                         String token = jwtUtil.generateToken(userNew.getEmail());
                         String expired = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(jwtUtil.getClaimFromToken(token, Claims::getExpiration));
-                        return new ApiResponse<LoginResponse>(true, 200, new LoginResponse(new User(userNew), token, expired), "register success");
+                        return new ApiResponse(true, 200, new LoginResponse(new User(userNew), token, expired), "register success");
                     }
                     catch (Exception e){
                         return new ApiResponse<>(false, 500, null, e.getMessage());
