@@ -1,10 +1,13 @@
 package com.n3.backend.controllers;
 
+import com.n3.backend.dto.ActionHistory.ActionHistory;
 import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.services.ActionHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/action-history")
@@ -13,7 +16,7 @@ public class ActionHistoryController {
     ActionHistoryService actionHistoryService;
 
     @GetMapping("")
-    public ApiResponse search(@ModelAttribute ActionHistorySearchRequest request){
+    public ApiResponse<List<ActionHistory>> search(@ModelAttribute ActionHistorySearchRequest request){
         return actionHistoryService.getAll(request);
     }
 
