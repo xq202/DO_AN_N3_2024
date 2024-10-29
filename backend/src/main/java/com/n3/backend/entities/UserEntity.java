@@ -26,7 +26,7 @@ public class UserEntity implements UserDetails {
     private String fullname;
     @Column()
     private String password;
-    @Column(columnDefinition = "0")
+    @Column(columnDefinition = "int default 0")
     private int gender;
     @Column(name = "date_of_birth")
     private Date dateOfBirth = null;
