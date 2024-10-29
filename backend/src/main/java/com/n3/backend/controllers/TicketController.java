@@ -3,11 +3,13 @@ package com.n3.backend.controllers;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.Ticket.Ticket;
 import com.n3.backend.dto.Ticket.TicketRequest;
+import com.n3.backend.dto.Ticket.TicketSearchRequest;
 import com.n3.backend.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/ticket")
@@ -20,8 +22,8 @@ public class TicketController {
     }
 
     @GetMapping("/")
-    public ApiResponse getAll(){
-        return ticketService.getAllTickets();
+    public ApiResponse<List<Ticket>> getAll(@ModelAttribute TicketSearchRequest request){
+        return ticketService.getAllTickets(request);
     }
 
     @PutMapping("/{id}")
