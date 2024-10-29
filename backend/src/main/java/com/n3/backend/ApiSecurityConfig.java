@@ -66,10 +66,10 @@ public class ApiSecurityConfig {
     @Bean
     public CorsConfigurationSource corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:8888")); // Cho phép origin cụ thể
+        config.setAllowedOrigins(List.of("*")); // Cho phép origin cụ thể
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);  // Áp dụng cho tất cả endpoint
