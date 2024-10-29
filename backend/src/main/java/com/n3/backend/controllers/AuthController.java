@@ -5,6 +5,7 @@ import com.n3.backend.dto.Auth.LoginRequest;
 import com.n3.backend.dto.Auth.LoginResponse;
 import com.n3.backend.dto.Auth.RegisterRequest;
 import com.n3.backend.dto.User.User;
+import com.n3.backend.entities.UserEntity;
 import com.n3.backend.services.AuthService;
 import com.n3.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +33,10 @@ public class AuthController {
     }
 
     @GetMapping("/user")
-    public User getUser(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication.isAuthenticated()){
-            return new User(userService.getByEmail(((UserDetails) authentication.getPrincipal()).getUsername()));
-        }
-        else return null;
+    public ApiResponse<User> getUser(){
+        UserEntity user = userService.getCurrentUser();
+        if (user == null) return new ApiResponse(false, 400, null, "User not found");
+        return new ApiResponse(true, 200, new User(user), "success");
     }
 
     @GetMapping("/test")
