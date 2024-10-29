@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/ticket-type")
 public class TicketTypeController {
@@ -20,7 +22,7 @@ public class TicketTypeController {
     }
 
     @GetMapping("/")
-    public ApiResponse getAll(){
+    public ApiResponse<List<TicketType>> getAll(){
         return ticketTypeService.getAll();
     }
     @PostMapping("/")
