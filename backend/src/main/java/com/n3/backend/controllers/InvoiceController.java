@@ -38,8 +38,8 @@ public class InvoiceController {
 //    }
 
     @PostMapping("")
-    public ApiResponse addNewInvoice(@RequestBody InvoiceRequest invoice){
-        return new ApiResponse(true, 200, invoice, "success");
+    public ApiResponse<Invoice> addNewInvoice(@RequestBody InvoiceRequest invoice){
+        return invoiceService.addInvoice(invoice);
     }
 
     @GetMapping("{id}/active")
