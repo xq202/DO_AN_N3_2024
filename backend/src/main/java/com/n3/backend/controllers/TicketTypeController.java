@@ -21,11 +21,11 @@ public class TicketTypeController {
         return ticketTypeService.getOneById(id);
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ApiResponse<List<TicketType>> getAll(){
         return ticketTypeService.getAll();
     }
-    @PostMapping("/")
+    @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<TicketType> addNew(TicketTypeRequest request){
         return ticketTypeService.addNewTicketType(request);
