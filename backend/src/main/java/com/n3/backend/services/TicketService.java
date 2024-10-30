@@ -84,7 +84,8 @@ public class TicketService {
     public ApiResponse<List<Ticket>> getAllTickets(TicketSearchRequest request) {
         try {
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
-            List<TicketEntity> tickets = ticketRepository.search(request.getCode(), request.getFullname(), request.getTicketTypeId(), Date.valueOf(request.getStartDate()), Date.valueOf(request.getEndDate()), pageable).stream().toList();
+            List<TicketEntity> tickets = ticketRepository.search("%"+request.getCode()+"%", "%"+request.getFullname()+"%", request.getTicketTypeId(), DatetimeConvert.stringToDate(request.getStartDate()), DatetimeConvert.stringToDate(request.getEndDate()), pageable).stream().toList();
+
             return new ApiResponse<>(true, 200, Ticket.getTickets(tickets), "Tickets found");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();

@@ -21,7 +21,7 @@ public class TicketController {
         return ticketService.getTicketById(id);
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ApiResponse<List<Ticket>> getAll(@ModelAttribute TicketSearchRequest request){
         return ticketService.getAllTickets(request);
     }
@@ -31,7 +31,7 @@ public class TicketController {
         return ticketService.updateTicket(id, request);
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ApiResponse<Ticket> addNew(@ModelAttribute TicketRequest request) throws SQLException {
         return ticketService.addNewTicket(request);
     }

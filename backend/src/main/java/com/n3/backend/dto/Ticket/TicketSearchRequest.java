@@ -2,13 +2,15 @@ package com.n3.backend.dto.Ticket;
 
 import lombok.Data;
 
+import java.sql.Date;
+
 public class TicketSearchRequest {
     private String code = "";
-    private String fullname;
-    private String startDate;
-    private String endDate;
+    private String fullname = "";
+    private String startDate = (new Date(0)).toString();
+    private String endDate = (new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000 - 1).toString());
     private int ticketTypeId;
-    private int page = 1;
+    private int page = 0;
     private int size = 10;
     private String sort = "id";
     private boolean reverse = false;

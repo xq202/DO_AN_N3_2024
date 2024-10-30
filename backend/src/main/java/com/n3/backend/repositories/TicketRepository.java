@@ -14,6 +14,6 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Integer> {
     TicketEntity findByCarId(int carId);
 //    Page<TicketEntity> searchByCarUserFullnameContainsAndAndCarCodeContains(String userFullname, String carCode, org.springframework.data.domain.Pageable pageable);
 
-    @Query("SELECT t FROM TicketEntity t WHERE t.car.code like ?1 AND t.car.user.fullname like ?2 AND (t.ticketType.id = ?3 OR ?3 = 0) AND (t.startDate >= ?4) AND (t.endDate <= ?5)")
+    @Query("SELECT t FROM TicketEntity t WHERE t.car.code like ?1 AND t.car.user.fullname like ?2 AND (t.ticketType.id = ?3 OR ?3 = 0) AND t.createdAt between ?4 and ?5")
     Page<TicketEntity> search(String carCode, String userFullname, int ticketTypeId, Date startDate, Date endDate, org.springframework.data.domain.Pageable pageable);
 }
