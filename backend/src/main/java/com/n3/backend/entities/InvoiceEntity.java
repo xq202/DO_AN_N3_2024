@@ -13,6 +13,7 @@ public class InvoiceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+    private String code = "INV" + new Date(System.currentTimeMillis()).getTime();
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
@@ -69,5 +70,13 @@ public class InvoiceEntity {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }
