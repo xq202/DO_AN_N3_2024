@@ -1,6 +1,7 @@
 package com.n3.backend.dto.Car;
 
 import com.n3.backend.config.DatetimeConvert;
+import com.n3.backend.dto.User.User;
 import com.n3.backend.entities.CarEntity;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ public class Car {
     private int id;
     private String name;
     private String code;
+    private User user;
     private String createdAt;
     private String updatedAt;
 
@@ -17,6 +19,7 @@ public class Car {
         this.id = carEntity.getId();
         this.name = carEntity.getName();
         this.code = carEntity.getCode();
+        this.user = new User(carEntity.getUser());
         this.createdAt = DatetimeConvert.timastampToString(carEntity.getCreatedAt());
         this.updatedAt = DatetimeConvert.timastampToString(carEntity.getUpdatedAt());
     }
@@ -46,6 +49,14 @@ public class Car {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getCode() {

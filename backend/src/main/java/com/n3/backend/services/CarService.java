@@ -6,7 +6,11 @@ import com.n3.backend.dto.Car.CarRequest;
 import com.n3.backend.dto.Car.CarSearchRequest;
 import com.n3.backend.entities.CarEntity;
 import com.n3.backend.repositories.CarRepository;
+import com.n3.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +19,14 @@ import java.util.List;
 public class CarService {
     @Autowired
     private CarRepository repository;
+    @Autowired
+    UserRepository userRepository;
 
     public ApiResponse<List<Car>> getAll(CarSearchRequest request){
         try{
-            List<CarEntity> list = repository.searchByNameContainsAndAndCodeContaining(request.getName(), request.getCode(), request.getPageable()).stream().toList();
-            return new ApiResponse<>(true, 200, Car.listCar(list), "success");
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
+            List<CarEntity> list = repository.searchByUserFullnameContainingIgnoreCaseAndCodeContainingIgnoreCase(request.getName(), request.getCode(), pageable).stream().toList();
+            return new ApiResponse(true, 200, Car.listCar(list), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());
@@ -41,9 +48,11 @@ public class CarService {
             CarEntity carEntity = new CarEntity();
             carEntity.setName(car.getName());
             carEntity.setCode(car.getCode());
-            repository.save(carEntity);
+            carEntity.setUser(userRepository.getById(car.getUserId()));
 
-            return new ApiResponse<Car>(true, 200, new Car(carEntity), "success");
+            CarEntity carSaved =  repository.save(carEntity);
+
+            return new ApiResponse(true, 200, new Car(carSaved), "success");
         }
         catch (Exception e){
             return new ApiResponse<>(false, 400, null, e.getMessage());

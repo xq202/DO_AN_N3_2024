@@ -3,6 +3,7 @@ package com.n3.backend.dto.Car;
 public class CarRequest {
     private String name;
     private String code;
+    private int userId;
 
     public String getName() {
         return name;
@@ -18,5 +19,13 @@ public class CarRequest {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }
