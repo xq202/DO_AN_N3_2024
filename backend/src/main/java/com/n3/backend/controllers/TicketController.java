@@ -32,7 +32,7 @@ public class TicketController {
     }
 
     @PostMapping("")
-    public ApiResponse<Ticket> addNew(@ModelAttribute TicketRequest request) throws SQLException {
+    public ApiResponse<Ticket> addNew(@RequestBody TicketRequest request) throws SQLException {
         return ticketService.addNewTicket(request);
     }
 

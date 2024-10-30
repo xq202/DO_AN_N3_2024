@@ -27,7 +27,7 @@ public class TicketTypeController {
     }
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<TicketType> addNew(TicketTypeRequest request){
+    public ApiResponse<TicketType> addNew(@RequestBody TicketTypeRequest request){
         return ticketTypeService.addNewTicketType(request);
     }
 

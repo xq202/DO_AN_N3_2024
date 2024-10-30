@@ -23,12 +23,12 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping(value = "/login")
-    public ApiResponse<LoginResponse> login(@ModelAttribute LoginRequest loginRequest){
+    public ApiResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest){
         return authService.login(loginRequest);
     }
 
     @PostMapping(value = "/register")
-    public ApiResponse<LoginResponse> register(@ModelAttribute RegisterRequest request) {
+    public ApiResponse<LoginResponse> register(@RequestBody RegisterRequest request) {
         return authService.register(request);
     }
 

@@ -27,12 +27,12 @@ public class CarController {
     }
 
     @PostMapping("")
-    public ApiResponse<Car> addNewCar(@ModelAttribute CarRequest car){
+    public ApiResponse<Car> addNewCar(@RequestBody CarRequest car){
         return carService.addNewCar(car);
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<Car> updateCar(@PathVariable("id") int id, @ModelAttribute CarRequest car){
+    public ApiResponse<Car> updateCar(@PathVariable("id") int id, @RequestBody CarRequest car){
         return carService.updateCar(id, car);
     }
 

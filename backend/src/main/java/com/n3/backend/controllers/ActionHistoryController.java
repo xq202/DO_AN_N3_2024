@@ -1,6 +1,7 @@
 package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ActionHistory.ActionHistory;
+import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
 import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.services.ActionHistoryService;
@@ -24,5 +25,10 @@ public class ActionHistoryController {
     @GetMapping("/test")
     public ApiResponse test(){
         return new ApiResponse(true, 200, null, "success");
+    }
+
+    @PostMapping("")
+    public ApiResponse<ActionHistory> add(@RequestBody ActionHistoryRequest request){
+        return actionHistoryService.addActionHistory(request);
     }
 }
