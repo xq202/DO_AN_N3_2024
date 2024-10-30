@@ -1,6 +1,7 @@
 package com.n3.backend.dto.Invoice;
 
 public class InvoiceSearchRequest {
+    private int status = 0;
     private String code = "";
     private String fullname = "";
     private String email = "";
@@ -73,5 +74,13 @@ public class InvoiceSearchRequest {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

@@ -3,6 +3,7 @@ package com.n3.backend.dto.Invoice;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.n3.backend.config.DatetimeConvert;
 import com.n3.backend.dto.Ticket.Ticket;
+import com.n3.backend.dto.User.User;
 import com.n3.backend.entities.InvoiceEntity;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 public class Invoice {
     private int id;
     private String code;
-    private int userId;
+    private User user;
     private double total = 0;
     private String createdAt;
     private String updatedAt;
@@ -27,7 +28,7 @@ public class Invoice {
 
     public Invoice(InvoiceEntity invoiceEntity) {
         this.id = invoiceEntity.getId();
-        this.userId = invoiceEntity.getUser().getId();
+        this.user = new User(invoiceEntity.getUser());
         this.total = invoiceEntity.getTotal();
         this.code = invoiceEntity.getCode();
         this.createdAt = DatetimeConvert.timastampToString(invoiceEntity.getCreatedAt());
@@ -51,12 +52,12 @@ public class Invoice {
         this.id = id;
     }
 
-    public int getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public double getTotal() {

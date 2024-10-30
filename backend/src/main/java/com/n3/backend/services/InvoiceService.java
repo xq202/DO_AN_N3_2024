@@ -39,7 +39,7 @@ public class InvoiceService {
     public ApiResponse getAll(InvoiceSearchRequest request){
         try {
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
-            Page<InvoiceEntity> invoiceEntities = invoiceRepository.searchByUserFullnameContainingIgnoreCaseAndUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCase(request.getFullname(), request.getEmail(), request.getCode(), pageable);
+            Page<InvoiceEntity> invoiceEntities = invoiceRepository.searchByUserFullnameContainingIgnoreCaseAndUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndStatus(request.getFullname(), request.getEmail(), request.getCode(), request.getStatus(), pageable);
             return new ApiResponse(true, 200, Invoice.getListInvoice(invoiceEntities.stream().toList()), "success");
         } catch (Exception e) {
             return new ApiResponse(false, 500, null, e.getMessage());
