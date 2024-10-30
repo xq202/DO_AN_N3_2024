@@ -15,5 +15,5 @@ public interface ActionHistoryRepository extends JpaRepository<ActionHistoryEnti
 //            "FROM ActionHistoryEntity a " +
 //            "inner join CarEntity c on c.id = a.car.id " +
 //            "WHERE c.code = ?1 and a.action = ?2")
-    Page<ActionHistoryEntity> searchByCarCodeContainsAndAction(String code, String action, Pageable pageable);
+    Page<ActionHistoryEntity> searchByCarCodeContainingIgnoreCaseAndActionContainingIgnoreCase(String code, String action, Pageable pageable);
 }

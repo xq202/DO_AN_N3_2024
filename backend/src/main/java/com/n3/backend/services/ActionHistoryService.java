@@ -8,6 +8,9 @@ import com.n3.backend.entities.ActionHistoryEntity;
 import com.n3.backend.repositories.ActionHistoryRepository;
 import com.n3.backend.repositories.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +24,8 @@ public class ActionHistoryService {
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
-            List<ActionHistoryEntity> actionHistoryEntity = repository.searchByCarCodeContainsAndAction(request.getCode(), request.getAction(), request.getPageable()).stream().toList();
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
+            List<ActionHistoryEntity> actionHistoryEntity = repository.searchByCarCodeContainingIgnoreCaseAndActionContainingIgnoreCase(request.getCode(), request.getAction(), pageable).stream().toList();
 
             return new ApiResponse(true, 200, ActionHistory.convertList(actionHistoryEntity), "success");
         }
