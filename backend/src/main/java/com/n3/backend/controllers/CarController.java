@@ -18,8 +18,14 @@ public class CarController {
     private CarService carService;
 
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<Car>> getAll(@ModelAttribute CarSearchRequest request){
         return carService.getAll(request);
+    }
+
+    @GetMapping("/get-car-user")
+    public ApiResponse<List<Car>> getCarUser(CarSearchRequest request){
+        return carService.getCarCurrentUser(request);
     }
 
     @GetMapping("/{id}")
