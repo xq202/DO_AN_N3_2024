@@ -1,5 +1,6 @@
 package com.n3.backend.dto.User;
 
+import com.n3.backend.config.DatetimeConvert;
 import com.n3.backend.entities.UserEntity;
 
 public class User {
@@ -12,6 +13,7 @@ public class User {
     private String position;
     private String createdAt;
     private String updatedAt;
+    private boolean isAdmin;
 
     public User(UserEntity user){
         setAddress(user.getAddress());
@@ -19,7 +21,9 @@ public class User {
         setEmail(user.getEmail());
         setFullname(user.getFullname());
         setPosition(user.getPosition());
-        setCreatedAt(user.getCreatedAt().toLocalDateTime().toString());
+        setAdmin(user.isAdmin());
+        setUpdatedAt(DatetimeConvert.timastampToString(user.getUpdatedAt()));
+        setCreatedAt(DatetimeConvert.timastampToString(user.getCreatedAt()));
         setPhoneNumber(user.getPhoneNumber());
         setDateOfBirth(user.getDateOfBirth() != null ? user.getDateOfBirth().toLocalDate().toString() : null);
     }
@@ -93,5 +97,13 @@ public class User {
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

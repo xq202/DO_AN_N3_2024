@@ -37,7 +37,7 @@ public class UserEntity implements UserDetails {
     @Column(name = "phone_number")
     private String phoneNumber;
     @Column(columnDefinition = "int default 0", name = "is_admin")
-    private int isAdmin;
+    private boolean isAdmin;
     @Column(columnDefinition = "int default 0", name = "is_active")
     private int isActive;
     @Column(columnDefinition = "int default 0")
@@ -54,7 +54,7 @@ public class UserEntity implements UserDetails {
     }
 
     public Set<String> getRoles() {
-        if(isAdmin==1) return Set.of("ROLE_ADMIN");
+        if(isAdmin) return Set.of("ROLE_ADMIN");
         else return Set.of("ROLE_USER");
     }
 
@@ -150,12 +150,12 @@ public class UserEntity implements UserDetails {
         this.phoneNumber = phoneNumber;
     }
 
-    public int getIsAdmin() {
+    public boolean isAdmin() {
         return isAdmin;
     }
 
-    public void setIsAdmin(int isAdmin) {
-        this.isAdmin = isAdmin;
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 
     public int getIsActive() {

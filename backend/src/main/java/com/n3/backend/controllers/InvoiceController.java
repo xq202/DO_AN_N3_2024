@@ -6,6 +6,7 @@ import com.n3.backend.dto.Invoice.InvoiceRequest;
 import com.n3.backend.dto.Invoice.InvoiceSearchRequest;
 import com.n3.backend.services.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class InvoiceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse deleteInvoice(@PathVariable int id){
         return invoiceService.deleteItem(id);
     }
@@ -38,11 +40,13 @@ public class InvoiceController {
 //    }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Invoice> addNewInvoice(@RequestBody InvoiceRequest invoice){
         return invoiceService.addInvoice(invoice);
     }
 
     @GetMapping("{id}/active")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Invoice> activeInvoice(@PathVariable int id){
         return invoiceService.activeInvoice(id);
     }

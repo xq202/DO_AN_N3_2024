@@ -3,7 +3,7 @@ package com.n3.backend.dto.Car;
 public class CarRequest {
     private String name;
     private String code;
-    private int userId;
+    private int userId = -1;
 
     public String getName() {
         return name;

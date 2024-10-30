@@ -5,6 +5,7 @@ import com.n3.backend.dto.Car.Car;
 import com.n3.backend.dto.Car.CarRequest;
 import com.n3.backend.dto.Car.CarSearchRequest;
 import com.n3.backend.entities.CarEntity;
+import com.n3.backend.entities.UserEntity;
 import com.n3.backend.repositories.CarRepository;
 import com.n3.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,17 @@ public class CarService {
     private CarRepository repository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    UserService userService;
 
     public ApiResponse<List<Car>> getAll(CarSearchRequest request){
         try{
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
-            List<CarEntity> list = repository.searchByUserFullnameContainingIgnoreCaseAndCodeContainingIgnoreCase(request.getName(), request.getCode(), pageable).stream().toList();
+            List<CarEntity> list = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCase(request.getEmail(), request.getCode(), pageable).stream().toList();
             return new ApiResponse(true, 200, Car.listCar(list), "success");
         }
         catch (Exception e){
-            return new ApiResponse(false, 500, null, e.getMessage());
+            return new ApiResponse(false, 500, null, "Error carService: " + e.getMessage());
         }
     }
 
@@ -45,17 +48,39 @@ public class CarService {
 
     public ApiResponse<Car> addNewCar(CarRequest car){
         try {
+            UserEntity currentUser = userService.getCurrentUser();
+
+            if(!currentUser.isAdmin()){
+                if(car.getUserId() >= 0 && car.getUserId() != currentUser.getId()){
+                    return new ApiResponse<>(false, 400, null, "You don't have permission to add car for other user");
+                }
+            }
+            else {
+                if(!userRepository.existsById(car.getUserId())){
+                    return new ApiResponse<>(false, 400, null, "User is not exist");
+                }
+            }
+            //check car code is exist
+            if(repository.findByCode(car.getCode().trim() ) != null){
+                return new ApiResponse<>(false, 400, null, "Car is exist");
+            }
+
             CarEntity carEntity = new CarEntity();
             carEntity.setName(car.getName());
             carEntity.setCode(car.getCode());
-            carEntity.setUser(userRepository.getById(car.getUserId()));
 
+            if(currentUser.isAdmin()){
+                carEntity.setUser(userRepository.getOne(car.getUserId()));
+            }
+            else {
+                carEntity.setUser(currentUser);
+            }
             CarEntity carSaved =  repository.save(carEntity);
 
             return new ApiResponse(true, 200, new Car(carSaved), "success");
         }
         catch (Exception e){
-            return new ApiResponse<>(false, 400, null, e.getMessage());
+            return new ApiResponse<>(false, 500, null, e.getMessage());
         }
     }
 

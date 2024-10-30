@@ -6,6 +6,7 @@ import com.n3.backend.dto.Ticket.TicketRequest;
 import com.n3.backend.dto.Ticket.TicketSearchRequest;
 import com.n3.backend.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -27,16 +28,19 @@ public class TicketController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Ticket> update(@PathVariable("id") int id, @ModelAttribute TicketRequest request){
         return ticketService.updateTicket(id, request);
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Ticket> addNew(@RequestBody TicketRequest request) throws SQLException {
         return ticketService.addNewTicket(request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse delete(@PathVariable("id") int id){
         return ticketService.deleteTicket(id);
     }

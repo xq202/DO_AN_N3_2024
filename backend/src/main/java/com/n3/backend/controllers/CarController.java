@@ -6,6 +6,7 @@ import com.n3.backend.dto.Car.CarRequest;
 import com.n3.backend.dto.Car.CarSearchRequest;
 import com.n3.backend.services.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,16 +28,19 @@ public class CarController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Car> addNewCar(@RequestBody CarRequest car){
         return carService.addNewCar(car);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Car> updateCar(@PathVariable("id") int id, @RequestBody CarRequest car){
         return carService.updateCar(id, car);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse deleteCar(@PathVariable("id") int id){
         return carService.deleteCar(id);
     }

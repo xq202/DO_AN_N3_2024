@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 public class CarSearchRequest {
-    private String name = "";
+    private String email = "";
     private String code = "";
     private int page = 0;
     private int size = 10;
@@ -15,20 +15,21 @@ public class CarSearchRequest {
     public CarSearchRequest() {
     }
 
-    public CarSearchRequest(int page, int size, String name, String code, boolean reverse, String sort) {
-        this.name = name;
+    public CarSearchRequest(int page, int size, String email, String code, boolean reverse, String sort) {
+        this.email = email;
         this.code = code;
         this.page = page;
         this.size = size;
         this.reverse = reverse;
         this.sort = sort;
     }
-    public String getName() {
-        return name;
+
+    public String getEmail() {
+        return email;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getCode() {

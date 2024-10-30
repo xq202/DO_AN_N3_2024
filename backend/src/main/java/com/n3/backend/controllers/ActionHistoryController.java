@@ -6,6 +6,7 @@ import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.services.ActionHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class ActionHistoryController {
     ActionHistoryService actionHistoryService;
 
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<ActionHistory>> search(@ModelAttribute ActionHistorySearchRequest request){
         return actionHistoryService.getAll(request);
     }
@@ -28,6 +30,7 @@ public class ActionHistoryController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ActionHistory> add(@RequestBody ActionHistoryRequest request){
         return actionHistoryService.addActionHistory(request);
     }

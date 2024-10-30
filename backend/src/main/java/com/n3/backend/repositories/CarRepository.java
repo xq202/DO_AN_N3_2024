@@ -13,6 +13,7 @@ public interface CarRepository extends JpaRepository<CarEntity, Integer> {
     List<CarEntity> findByNameContaining(String name);
 
     List<CarEntity> findByCodeContaining(String code);
+    CarEntity findByCode(String code);
 
-    Page<CarEntity> searchByUserFullnameContainingIgnoreCaseAndCodeContainingIgnoreCase(String name, String code, Pageable pageable);
+    Page<CarEntity> searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCase(String name, String code, Pageable pageable);
 }

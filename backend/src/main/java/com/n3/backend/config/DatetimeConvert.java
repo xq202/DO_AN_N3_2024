@@ -11,7 +11,7 @@ public class DatetimeConvert {
         return (!date.isEmpty()) ? Timestamp.valueOf(date) : null;
     }
 
-    public static String DateToString(java.sql.Date date) {
+    public static String dateToString(java.sql.Date date) {
         return (date != null) ? date.toLocalDate().toString() : "";
     }
 
