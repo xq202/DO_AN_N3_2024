@@ -21,9 +21,12 @@ public class TicketEntity {
     @JoinColumn(name = "car_id", nullable = false)
     private CarEntity car;
     @Column(nullable = false)
+    private int invoiceId;
+    @Column(nullable = false)
     private Date startDate;
     @Column(nullable = false)
     private Date endDate;
+    private boolean isExpired = false;
     @CreationTimestamp
     private Timestamp createdAt;
     @UpdateTimestamp
@@ -83,5 +86,21 @@ public class TicketEntity {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isExpired() {
+        return isExpired;
+    }
+
+    public void setExpired(boolean expired) {
+        isExpired = expired;
+    }
+
+    public int getInvoiceId() {
+        return invoiceId;
+    }
+
+    public void setInvoiceId(int invoiceId) {
+        this.invoiceId = invoiceId;
     }
 }

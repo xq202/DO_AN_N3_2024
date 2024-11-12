@@ -5,8 +5,12 @@ import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
 import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.entities.ActionHistoryEntity;
+import com.n3.backend.entities.CarEntity;
+import com.n3.backend.entities.PackingInfomation;
+import com.n3.backend.entities.TicketEntity;
 import com.n3.backend.repositories.ActionHistoryRepository;
 import com.n3.backend.repositories.CarRepository;
+import com.n3.backend.repositories.PackingInfomationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +25,8 @@ public class ActionHistoryService {
     private ActionHistoryRepository repository;
     @Autowired
     private CarRepository carRepository;
+    @Autowired
+    PackingInfomationRepository packingInfomationRepository;
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
@@ -41,7 +47,7 @@ public class ActionHistoryService {
             return new ApiResponse(true, 200, actionHistory, "success");
         }
         catch(Exception e){
-            return new ApiResponse(false, 400, null, e.getMessage());
+            return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
 
@@ -52,33 +58,51 @@ public class ActionHistoryService {
             return new ApiResponse(true, 200, null, "delete success");
         }
         catch (Exception e){
-            return new ApiResponse(false, 400, null, e.getMessage());
+            return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
 
     public ApiResponse updateItem(int id, ActionHistoryRequest request){
         try {
             ActionHistoryEntity actionHistoryEntity = repository.getOne(id);
-            actionHistoryEntity.setCar(carRepository.getOne(request.getCarId()));
+            actionHistoryEntity.setCar(carRepository.findByCode(request.getCode()));
             actionHistoryEntity.setAction(request.getAction());
             repository.save(actionHistoryEntity);
             return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "update success");
         }
         catch (Exception e){
-            return new ApiResponse(false, 400, null, e.getMessage());
+            return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
 
     public ApiResponse addActionHistory(ActionHistoryRequest request){
         try {
+            PackingInfomation packingInfomation = packingInfomationRepository.findFirst();
+
+            if(request.getAction().equals("IN")){
+                if(packingInfomation.getTotalSlotAvailable() <= 0){
+                    return new ApiResponse(false, 400, null, "No slot available");
+                }
+
+                packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() - 1);
+            }
+            else {
+                CarEntity carEntity = carRepository.findByCode(request.getCode());
+            }
+
+
             ActionHistoryEntity actionHistoryEntity = new ActionHistoryEntity();
-            actionHistoryEntity.setCar(carRepository.getOne(request.getCarId()));
+            actionHistoryEntity.setCar(carRepository.findByCode(request.getCode()));
             actionHistoryEntity.setAction(request.getAction());
             repository.save(actionHistoryEntity);
+
+
+            packingInfomationRepository.save(packingInfomation);
+
             return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "success");
         }
         catch (Exception e){
-            return new ApiResponse(false, 400, null, e.getMessage());
+            return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
 }

@@ -2,15 +2,15 @@ package com.n3.backend.dto.ActionHistory;
 
 public class ActionHistoryRequest {
     private int id;
-    private int carId;
+    private String code;
     private String action;
 
     public ActionHistoryRequest() {
     }
 
-    public ActionHistoryRequest(int id, int carId, String action) {
+    public ActionHistoryRequest(int id, String code, String action) {
         this.id = id;
-        this.carId = carId;
+        this.code = code;
         this.action = action;
     }
 
@@ -22,12 +22,12 @@ public class ActionHistoryRequest {
         this.id = id;
     }
 
-    public int getCarId() {
-        return carId;
+    public String getCode() {
+        return code;
     }
 
-    public void setCarId(int carId) {
-        this.carId = carId;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getAction() {

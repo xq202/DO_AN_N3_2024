@@ -40,7 +40,6 @@ public class InvoiceController {
 //    }
 
     @PostMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Invoice> addNewInvoice(@RequestBody InvoiceRequest invoice){
         return invoiceService.addInvoice(invoice);
     }
