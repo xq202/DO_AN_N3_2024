@@ -11,17 +11,21 @@ public class ActionHistorySearchRequest {
     private int size = 10;
     private boolean reverse;
     private String sort = "id";
+    String startDate;
+    String endDate;
 
     public ActionHistorySearchRequest() {
     }
 
-    public ActionHistorySearchRequest(int page, int size, String code, String action, boolean reverse, String sort) {
+    public ActionHistorySearchRequest(int page, int size, String code, String action, boolean reverse, String sort, String startDate, String endDate) {
         this.code = code;
         this.action = action;
         this.page = page;
         this.size = size;
         this.reverse = reverse;
         this.sort = sort;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
     public String getCode() {
@@ -70,5 +74,21 @@ public class ActionHistorySearchRequest {
 
     public void setSort(String sort) {
         this.sort = sort;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 }

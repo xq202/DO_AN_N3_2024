@@ -84,9 +84,15 @@ public class TicketService {
     public ApiResponse<List<Ticket>> getAllTickets(TicketSearchRequest request) {
         try {
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
-            List<TicketEntity> tickets = ticketRepository.search("%"+request.getCode()+"%", "%"+request.getFullname()+"%", request.getTicketTypeId(), DatetimeConvert.stringToDate(request.getStartDate()), DatetimeConvert.stringToDate(request.getEndDate()), pageable).stream().toList();
 
-            return new ApiResponse<>(true, 200, Ticket.getTickets(tickets), "Tickets found");
+            Page data = ticketRepository.search("%"+request.getCode()+"%", "%"+request.getFullname()+"%", request.getTicketTypeId(), DatetimeConvert.stringToDate(request.getStartDate()), DatetimeConvert.stringToDate(request.getEndDate()), pageable);
+
+            List<TicketEntity> tickets = data.stream().toList();
+            int totalPage = data.getTotalPages();
+            int totalItem = (int) data.getTotalElements();
+            List<Ticket> ticketList = Ticket.getTickets(tickets);
+
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, ticketList), "Tickets found");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return new ApiResponse<>(false, 400, null, "Invalid date format: " + e.getMessage());

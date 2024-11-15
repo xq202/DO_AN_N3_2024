@@ -12,7 +12,7 @@ import java.util.List;
 public interface CarRepository extends JpaRepository<CarEntity, Integer> {
     List<CarEntity> findByNameContaining(String name);
 
-    List<CarEntity> findByCodeContaining(String code);
+    Page<CarEntity> findByCodeContaining(String code, Pageable pageable);
     CarEntity findByCode(String code);
 
     Page<CarEntity> searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndId(String name, String code, int id, Pageable pageable);

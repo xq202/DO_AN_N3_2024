@@ -1,18 +1,37 @@
 package com.n3.backend.config;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 
 public class DatetimeConvert {
     public static String timastampToString(Timestamp date) {
-        return (date != null) ? date.toLocalDateTime().toString() : "";
+        if(date == null) return "";
+
+        String pattern = "dd-MM-yyyy HH:mm:ss";
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+
+        String formattedDateTime = date.toLocalDateTime().format(formatter);
+
+        return formattedDateTime;
     }
 
-    public static Timestamp stringToTimastamp(String date) {
+    public static Timestamp stringToTimestamp(String date) {
         return (!date.isEmpty()) ? Timestamp.valueOf(date) : null;
     }
 
     public static String dateToString(java.sql.Date date) {
-        return (date != null) ? date.toLocalDate().toString() : "";
+        if(date == null) return "";
+
+        String pattern = "dd-MM-yyyy";
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+
+        String formattedDate = date.toLocalDate().format(formatter);
+
+        return formattedDate;
     }
 
     public static java.sql.Date stringToDate(String date) {

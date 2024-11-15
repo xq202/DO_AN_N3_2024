@@ -4,12 +4,14 @@ import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.Car.Car;
 import com.n3.backend.dto.Car.CarRequest;
 import com.n3.backend.dto.Car.CarSearchRequest;
+import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.User.User;
 import com.n3.backend.entities.CarEntity;
 import com.n3.backend.entities.UserEntity;
 import com.n3.backend.repositories.CarRepository;
 import com.n3.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,8 +31,15 @@ public class CarService {
     public ApiResponse<List<Car>> getAll(CarSearchRequest request){
         try{
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
-            List<CarEntity> list = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCase(request.getEmail(), request.getCode(), pageable).stream().toList();
-            return new ApiResponse(true, 200, Car.listCar(list), "success");
+
+            Page data =  repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCase(request.getEmail(), request.getCode(), pageable);
+
+            List<CarEntity> list = data.stream().toList();
+
+            int totalPage = data.getTotalPages();
+            int totalItem = (int) data.getTotalElements();
+
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, Car.listCar(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, "Error carService: " + e.getMessage());
@@ -40,9 +49,16 @@ public class CarService {
     public ApiResponse getCarCurrentUser(CarSearchRequest request){
         try{
             UserEntity currentUser = userService.getCurrentUser();
+
             Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
-            List<CarEntity> list = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndId(request.getEmail(), request.getCode(), currentUser.getId(), pageable).stream().toList();
-            return new ApiResponse(true, 200, Car.listCar(list), "success");
+
+            Page data = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndId(request.getEmail(), request.getCode(), currentUser.getId(), pageable);
+
+            List<CarEntity> list = data.stream().toList();
+            int totalPage = data.getTotalPages();
+            int totalItem = (int) data.getTotalElements();
+
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, Car.listCar(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, "Error carService: " + e.getMessage());
@@ -133,10 +149,15 @@ public class CarService {
         }
     }
 
-    public ApiResponse<List<Car>> searchCarByCode(String code){
+    public ApiResponse<List<Car>> searchCarByCode(CarSearchRequest request){
         try {
-            List<CarEntity> list = repository.findByCodeContaining(code);
-            return new ApiResponse(true, 200, Car.listCar(list), "success");
+            Page data = repository.findByCodeContaining(request.getCode(), PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
+
+            List<CarEntity> list = data.stream().toList();
+            int totalPage = data.getTotalPages();
+            int totalItem = (int) data.getTotalElements();
+
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, Car.listCar(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());

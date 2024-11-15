@@ -5,6 +5,7 @@ import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
 import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.services.ActionHistoryService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +25,9 @@ public class ActionHistoryController {
         return actionHistoryService.getAll(request);
     }
 
-    @GetMapping("/test")
-    public ApiResponse test(){
-        return new ApiResponse(true, 200, null, "success");
+    @GetMapping("/car/{id}")
+    public ApiResponse getActionHistoryByCarId(@PathVariable int id, HttpServletRequest request){
+        return actionHistoryService.getByCar(id, request);
     }
 
     @PostMapping("")
