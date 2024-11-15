@@ -1,13 +1,21 @@
 package com.n3.backend.services;
 
+import com.n3.backend.dto.ApiResponse;
+import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.User.User;
+import com.n3.backend.dto.User.UserRequest;
 import com.n3.backend.entities.UserEntity;
 import com.n3.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -36,6 +44,21 @@ public class UserService {
             return getByEmail(userDetails.getUsername());
         } catch (Exception e){
             return null;
+        }
+    }
+
+    public ApiResponse getListUser(UserRequest request){
+        try {
+            Page data = userRepository.findByFullnameContainingIgnoreCaseAndEmailContainingIgnoreCaseAndIsAdmin(request.getFullname(), request.getEmail(), false, PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
+
+            List<UserEntity> list = data.getContent();
+            int totalItem = (int) data.getTotalElements();
+            int totalPage = data.getTotalPages();
+
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage() + 1, totalItem, User.getList(list)), "success");
+        }
+        catch (Exception e){
+            return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
 }

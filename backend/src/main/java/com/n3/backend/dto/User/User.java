@@ -3,6 +3,9 @@ package com.n3.backend.dto.User;
 import com.n3.backend.config.DatetimeConvert;
 import com.n3.backend.entities.UserEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private String fullname;
     private String email;
@@ -26,6 +29,14 @@ public class User {
         setCreatedAt(DatetimeConvert.timastampToString(user.getCreatedAt()));
         setPhoneNumber(user.getPhoneNumber());
         setDateOfBirth(user.getDateOfBirth() != null ? user.getDateOfBirth().toLocalDate().toString() : null);
+    }
+
+    public static List<User> getList(List<UserEntity> list){
+        List<User> result = new ArrayList<>();
+        for (UserEntity user : list){
+            result.add(new User(user));
+        }
+        return result;
     }
     public String getFullname() {
         return fullname;
