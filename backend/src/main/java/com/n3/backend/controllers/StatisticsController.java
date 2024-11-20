@@ -17,9 +17,15 @@ public class StatisticsController {
     @Autowired
     private StatisticsService statisticsService;
     @GetMapping("/spending")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<UserSpending>> spendingReport(){
         return statisticsService.spendingReport();
+    }
+
+    @GetMapping("/income")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<List<Object[]>> incomeReport(){
+        return statisticsService.incomeReport();
     }
 
 }

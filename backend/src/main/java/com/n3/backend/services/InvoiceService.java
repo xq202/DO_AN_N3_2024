@@ -186,6 +186,11 @@ public class InvoiceService {
         try {
             packingInfomation = packingInfomationRepository.findFirst();
 
+            //kiem tra invoice co ton tai khong
+            if(!invoiceRepository.existsById(id)){
+                return new ApiResponse(false, 400, null, "Invoice not found");
+            }
+
             //lay danh sach invoice detail
             invoiceEntities = invoiceDetailRepository.findAllByInvoiceId(id);
 
