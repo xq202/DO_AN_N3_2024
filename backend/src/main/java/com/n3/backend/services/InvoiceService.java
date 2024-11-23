@@ -41,7 +41,7 @@ public class InvoiceService {
 
     public ApiResponse getAll(InvoiceSearchRequest request){
         try {
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
+            Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
 
             Page<InvoiceEntity> invoiceEntities = invoiceRepository.searchByUserFullnameContainingIgnoreCaseAndUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndStatus(request.getFullname(), request.getEmail(), request.getCode(), request.getStatus(), pageable);
 
@@ -49,7 +49,7 @@ public class InvoiceService {
             int totalPage = invoiceEntities.getTotalPages();
             int totalItem = (int) invoiceEntities.getTotalElements();
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, invoices), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, invoices), "success");
         } catch (Exception e) {
             return new ApiResponse(false, 500, null, e.getMessage());
         }

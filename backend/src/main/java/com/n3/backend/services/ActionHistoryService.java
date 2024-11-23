@@ -6,10 +6,10 @@ import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
 import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
-import com.n3.backend.dto.User.User;
 import com.n3.backend.entities.*;
 import com.n3.backend.repositories.ActionHistoryRepository;
 import com.n3.backend.repositories.CarRepository;
+import com.n3.backend.repositories.CurrentPackingRepository;
 import com.n3.backend.repositories.PackingInfomationRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +31,12 @@ public class ActionHistoryService {
     PackingInfomationRepository packingInfomationRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    CurrentPackingRepository currentPackingRepository;
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
+            Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
 
             Page data = repository.searchByCarCodeContainingIgnoreCaseAndActionContainingIgnoreCaseAndCreatedAtBetween(request.getCode(), request.getAction(), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), pageable);
 
@@ -42,7 +44,7 @@ public class ActionHistoryService {
             int totalPage = data.getTotalPages();
             int totalItem = (int) data.getTotalElements();
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, ActionHistory.convertList(list)), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, ActionHistory.convertList(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());
@@ -108,9 +110,32 @@ public class ActionHistoryService {
         try {
             PackingInfomation packingInfomation = packingInfomationRepository.findFirst();
 
-            // check action
-            if(!request.getAction().equals("IN") && !request.getAction().equals("OUT")){
-                return new ApiResponse(false, 400, null, "Action is invalid");
+            try {
+                // check action
+                if (!request.getAction().equals("IN") && !request.getAction().equals("OUT")) {
+                    return new ApiResponse(false, 400, null, "Action is invalid");
+                }
+            }
+            catch (Exception e){
+                return new ApiResponse(false, 400, null, "Action is invalid " + e.getMessage());
+            }
+
+            // check car
+            CarEntity car = carRepository.findByCode(request.getCode());
+            if(car == null){
+                return new ApiResponse(false, 400, null, "Car not found");
+            }
+
+            // check car is in parking
+            if(request.getAction().equals("IN")){
+                if(currentPackingRepository.existsByCarId(car.getId())){
+                    return new ApiResponse(false, 400, null, "Car is in parking");
+                }
+            }
+            else {
+                if(!currentPackingRepository.existsByCarId(car.getId())){
+                    return new ApiResponse(false, 400, null, "Car is not in parking");
+                }
             }
 
             if(request.getAction().equals("IN")){
@@ -119,14 +144,19 @@ public class ActionHistoryService {
                 }
 
                 packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() - 1);
+
+                CurrentPacking currentPacking = new CurrentPacking();
+                currentPacking.setCarId(car.getId());
+                currentPackingRepository.save(currentPacking);
             }
             else {
                 packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() + 1);
+                currentPackingRepository.deleteAllByCarId(car.getId());
             }
 
             ActionHistoryEntity actionHistoryEntity = new ActionHistoryEntity();
 
-            actionHistoryEntity.setCar(carRepository.findByCode(request.getCode()));
+            actionHistoryEntity.setCar(car);
             actionHistoryEntity.setAction(request.getAction());
 
             repository.save(actionHistoryEntity);

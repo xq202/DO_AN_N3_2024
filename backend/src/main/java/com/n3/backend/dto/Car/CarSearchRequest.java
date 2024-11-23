@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 public class CarSearchRequest {
     private String email = "";
     private String code = "";
-    private int page = 0;
+    private int page = 1;
     private int size = 10;
     private boolean reverse;
     private String sort = "id";

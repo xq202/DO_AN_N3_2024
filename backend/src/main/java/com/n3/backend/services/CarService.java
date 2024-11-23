@@ -30,7 +30,7 @@ public class CarService {
 
     public ApiResponse<List<Car>> getAll(CarSearchRequest request){
         try{
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
+            Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
 
             Page data =  repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCase(request.getEmail(), request.getCode(), pageable);
 
@@ -39,7 +39,7 @@ public class CarService {
             int totalPage = data.getTotalPages();
             int totalItem = (int) data.getTotalElements();
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, Car.listCar(list)), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, Car.listCar(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, "Error carService: " + e.getMessage());
@@ -50,7 +50,7 @@ public class CarService {
         try{
             UserEntity currentUser = userService.getCurrentUser();
 
-            Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
+            Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
 
             Page data = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndId(request.getEmail(), request.getCode(), currentUser.getId(), pageable);
 
@@ -58,7 +58,7 @@ public class CarService {
             int totalPage = data.getTotalPages();
             int totalItem = (int) data.getTotalElements();
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, Car.listCar(list)), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, Car.listCar(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, "Error carService: " + e.getMessage());
@@ -151,13 +151,13 @@ public class CarService {
 
     public ApiResponse<List<Car>> searchCarByCode(CarSearchRequest request){
         try {
-            Page data = repository.findByCodeContaining(request.getCode(), PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
+            Page data = repository.findByCodeContaining(request.getCode(), PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
 
             List<CarEntity> list = data.stream().toList();
             int totalPage = data.getTotalPages();
             int totalItem = (int) data.getTotalElements();
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage()+1, totalItem, Car.listCar(list)), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, Car.listCar(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());

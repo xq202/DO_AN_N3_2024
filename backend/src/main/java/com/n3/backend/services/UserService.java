@@ -49,13 +49,13 @@ public class UserService {
 
     public ApiResponse getListUser(UserRequest request){
         try {
-            Page data = userRepository.findByFullnameContainingIgnoreCaseAndEmailContainingIgnoreCaseAndIsAdmin(request.getFullname(), request.getEmail(), false, PageRequest.of(request.getPage(), request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
+            Page data = userRepository.findByFullnameContainingIgnoreCaseAndEmailContainingIgnoreCaseAndIsAdmin(request.getFullname(), request.getEmail(), false, PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
 
             List<UserEntity> list = data.getContent();
             int totalItem = (int) data.getTotalElements();
             int totalPage = data.getTotalPages();
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage() + 1, totalItem, User.getList(list)), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, User.getList(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());

@@ -7,7 +7,7 @@ public class InvoiceSearchRequest {
     private String email = "";
     private String phone = "";
 
-    private int page = 0;
+    private int page = 1;
     private int size = 10;
     private boolean reverse;
     private String sort = "id";
