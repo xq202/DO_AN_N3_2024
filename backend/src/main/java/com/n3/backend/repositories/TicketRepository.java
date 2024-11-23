@@ -16,7 +16,7 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<TicketEntity, Integer> {
 
-    Page<TicketEntity> findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(String carCode, Timestamp startDate, Timestamp endDate, int userId, Pageable pageable);
+    Page<TicketEntity> findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(String carCode, Date startDate, Date endDate, int userId, Pageable pageable);
     Page<TicketEntity> findByCarCodeContainingIgnoreCaseAndIsExpiredAndCreatedAtBetweenAndCarUserId(String carCode, boolean isExpired, Timestamp startDate, Timestamp endDate, int userId, Pageable pageable);
 
     @Query("SELECT t FROM TicketEntity t WHERE t.car.code like ?1 AND t.car.user.fullname like ?2 AND (t.ticketType.id = ?3 OR ?3 = 0) AND t.createdAt between ?4 and ?5")

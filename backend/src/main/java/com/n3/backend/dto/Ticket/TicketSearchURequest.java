@@ -4,8 +4,8 @@ import java.sql.Date;
 
 public class TicketSearchURequest {
     private String code;
-    private String startDate = (new Date(0)).toString() + " 00:00:00";
-    private String endDate = (new Date(System.currentTimeMillis())).toString() + " 23:59:59";
+    private String startDate = (new Date(0)).toString();
+    private String endDate = (new Date(System.currentTimeMillis())).toString();
     private int isExpired = -1;
     private int page = 1;
     private int size = 10;

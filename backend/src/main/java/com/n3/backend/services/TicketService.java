@@ -133,7 +133,7 @@ public class TicketService {
                 ticketList = Ticket.getTickets(tickets);
             }
             else{
-                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(request.getCode(), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
+                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(request.getCode(), DatetimeConvert.stringToDate(request.getStartDate()), DatetimeConvert.stringToDate(request.getEndDate()), currentUser.getId(), pageable);
                 tickets = data.stream().toList();
                 totalPage = data.getTotalPages();
                 totalItem = (int) data.getTotalElements();
