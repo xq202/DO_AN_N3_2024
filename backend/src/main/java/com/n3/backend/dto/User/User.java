@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
+    private int id;
     private String fullname;
     private String email;
     private String address;
@@ -19,6 +20,7 @@ public class User {
     private boolean isAdmin;
 
     public User(UserEntity user){
+        setId(user.getId());
         setAddress(user.getAddress());
         setBalance(user.getBalance());
         setEmail(user.getEmail());
@@ -28,7 +30,15 @@ public class User {
         setUpdatedAt(DatetimeConvert.timastampToString(user.getUpdatedAt()));
         setCreatedAt(DatetimeConvert.timastampToString(user.getCreatedAt()));
         setPhoneNumber(user.getPhoneNumber());
-        setDateOfBirth(user.getDateOfBirth() != null ? user.getDateOfBirth().toLocalDate().toString() : null);
+        setDateOfBirth(user.getDateOfBirth() != null ? DatetimeConvert.dateToString(user.getDateOfBirth()) : null);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public static List<User> getList(List<UserEntity> list){
