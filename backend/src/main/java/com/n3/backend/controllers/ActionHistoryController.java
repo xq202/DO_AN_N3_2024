@@ -21,7 +21,7 @@ public class ActionHistoryController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<ActionHistory>> search(@RequestBody ActionHistorySearchRequest request){
+    public ApiResponse<List<ActionHistory>> search(@ModelAttribute ActionHistorySearchRequest request){
         return actionHistoryService.getAll(request);
     }
 

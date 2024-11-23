@@ -3,7 +3,7 @@ package com.n3.backend.dto.User;
 public class UserRequest {
     private String email = "";
     private String fullname = "";
-    private int page = 0;
+    private int page = 1;
     private int size = 10;
     private String sort = "id";
     private boolean isReverse = false;

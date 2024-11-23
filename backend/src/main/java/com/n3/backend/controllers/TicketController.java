@@ -25,7 +25,7 @@ public class TicketController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("")
-    public ApiResponse<List<Ticket>> getAll(@RequestBody TicketSearchRequest request){
+    public ApiResponse<List<Ticket>> getAll(@ModelAttribute TicketSearchRequest request){
         return ticketService.getAllTickets(request);
     }
 
@@ -48,7 +48,7 @@ public class TicketController {
     }
 
     @GetMapping("/user")
-    public ApiResponse<List<Ticket>> getByUser(@RequestBody TicketSearchURequest request){
+    public ApiResponse<List<Ticket>> getByUser(@ModelAttribute TicketSearchURequest request){
         return ticketService.getTicketForUser(request);
     }
 }

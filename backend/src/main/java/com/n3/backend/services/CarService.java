@@ -7,8 +7,10 @@ import com.n3.backend.dto.Car.CarSearchRequest;
 import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.User.User;
 import com.n3.backend.entities.CarEntity;
+import com.n3.backend.entities.CurrentPacking;
 import com.n3.backend.entities.UserEntity;
 import com.n3.backend.repositories.CarRepository;
+import com.n3.backend.repositories.CurrentPackingRepository;
 import com.n3.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +29,8 @@ public class CarService {
     UserRepository userRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    CurrentPackingRepository currentPackingRepository;
 
     public ApiResponse<List<Car>> getAll(CarSearchRequest request){
         try{
@@ -154,6 +158,28 @@ public class CarService {
             Page data = repository.findByCodeContaining(request.getCode(), PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
 
             List<CarEntity> list = data.stream().toList();
+            int totalPage = data.getTotalPages();
+            int totalItem = (int) data.getTotalElements();
+
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, Car.listCar(list)), "success");
+        }
+        catch (Exception e){
+            return new ApiResponse(false, 500, null, e.getMessage());
+        }
+    }
+
+    public ApiResponse getCarParking(CarSearchRequest request){
+        try {
+            UserEntity currentUser = userService.getCurrentUser();
+            Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
+
+            Page data = currentPackingRepository.findAllCarPacking(request.getCode(), request.getEmail(), pageable);
+
+            List<CurrentPacking> listPacking = data.stream().toList();
+
+            List<Integer> listId = listPacking.stream().map(CurrentPacking::getCarId).toList();
+
+            List<CarEntity> list = repository.findAllById(listId);
             int totalPage = data.getTotalPages();
             int totalItem = (int) data.getTotalElements();
 

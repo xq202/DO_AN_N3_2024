@@ -24,7 +24,7 @@ public class CarController {
     }
 
     @GetMapping("/get-car-user")
-    public ApiResponse<List<Car>> getCarUser(CarSearchRequest request){
+    public ApiResponse<List<Car>> getCarUser(@ModelAttribute CarSearchRequest request){
         return carService.getCarCurrentUser(request);
     }
 
@@ -49,5 +49,11 @@ public class CarController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse deleteCar(@PathVariable("id") int id){
         return carService.deleteCar(id);
+    }
+
+    @GetMapping("/packing")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<List<Car>> getAllCarPacking(@ModelAttribute CarSearchRequest request){
+        return carService.getCarParking(request);
     }
 }

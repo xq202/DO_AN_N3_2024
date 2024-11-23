@@ -6,9 +6,7 @@ import com.n3.backend.dto.User.UserRequest;
 import com.n3.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,7 +18,7 @@ public class UserController {
 
     @GetMapping("/list-user")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<User>> getListUser(UserRequest request){
+    public ApiResponse<List<User>> getListUser(@ModelAttribute UserRequest request){
         return userService.getListUser(request);
     }
 }
