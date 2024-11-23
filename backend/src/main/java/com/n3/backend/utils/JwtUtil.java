@@ -1,4 +1,4 @@
-package com.n3.backend.config;
+package com.n3.backend.utils;
 
 import com.n3.backend.entities.UserEntity;
 import com.n3.backend.repositories.UserRepository;

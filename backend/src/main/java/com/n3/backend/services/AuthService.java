@@ -1,7 +1,7 @@
 package com.n3.backend.services;
 
-import com.n3.backend.config.JwtUtil;
-import com.n3.backend.config.PasswordUtil;
+import com.n3.backend.utils.JwtUtil;
+import com.n3.backend.utils.PasswordUtil;
 import com.n3.backend.dto.*;
 import com.n3.backend.dto.Auth.LoginRequest;
 import com.n3.backend.dto.Auth.LoginResponse;

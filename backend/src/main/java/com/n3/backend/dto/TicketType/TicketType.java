@@ -1,10 +1,7 @@
 package com.n3.backend.dto.TicketType;
 
-import com.n3.backend.config.DatetimeConvert;
+import com.n3.backend.utils.DatetimeConvert;
 import com.n3.backend.entities.TicketTypeEntity;
-
-import java.sql.Time;
-import java.sql.Timestamp;
 
 public class TicketType {
     private String name;

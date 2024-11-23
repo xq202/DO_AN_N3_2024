@@ -4,6 +4,7 @@ import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.Ticket.Ticket;
 import com.n3.backend.dto.Ticket.TicketRequest;
 import com.n3.backend.dto.Ticket.TicketSearchRequest;
+import com.n3.backend.dto.Ticket.TicketSearchURequest;
 import com.n3.backend.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,8 +23,9 @@ public class TicketController {
         return ticketService.getTicketById(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("")
-    public ApiResponse<List<Ticket>> getAll(@ModelAttribute TicketSearchRequest request){
+    public ApiResponse<List<Ticket>> getAll(@RequestBody TicketSearchRequest request){
         return ticketService.getAllTickets(request);
     }
 
@@ -43,5 +45,10 @@ public class TicketController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse delete(@PathVariable("id") int id){
         return ticketService.deleteTicket(id);
+    }
+
+    @GetMapping("/user")
+    public ApiResponse<List<Ticket>> getByUser(@RequestBody TicketSearchURequest request){
+        return ticketService.getTicketForUser(request);
     }
 }

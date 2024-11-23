@@ -1,4 +1,4 @@
-package com.n3.backend.config;
+package com.n3.backend.utils;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

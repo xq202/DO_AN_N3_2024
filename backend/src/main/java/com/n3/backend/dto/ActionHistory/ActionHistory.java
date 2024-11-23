@@ -1,6 +1,6 @@
 package com.n3.backend.dto.ActionHistory;
 
-import com.n3.backend.config.DatetimeConvert;
+import com.n3.backend.utils.DatetimeConvert;
 import com.n3.backend.dto.Car.Car;
 import com.n3.backend.entities.ActionHistoryEntity;
 

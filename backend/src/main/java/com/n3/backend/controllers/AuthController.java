@@ -1,6 +1,5 @@
 package com.n3.backend.controllers;
 
-import com.n3.backend.config.DatetimeConvert;
 import com.n3.backend.dto.*;
 import com.n3.backend.dto.Auth.LoginRequest;
 import com.n3.backend.dto.Auth.LoginResponse;
@@ -11,8 +10,6 @@ import com.n3.backend.services.AuthService;
 import com.n3.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.sql.Timestamp;
 
 @RestController
 @RequestMapping("/auth")

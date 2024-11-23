@@ -1,5 +1,6 @@
 package com.n3.backend.dto.Ticket;
 
+import com.n3.backend.utils.DatetimeConvert;
 import com.n3.backend.dto.Car.Car;
 import com.n3.backend.dto.TicketType.TicketType;
 import com.n3.backend.entities.TicketEntity;
@@ -22,10 +23,10 @@ public class Ticket {
         this.name = ticketEntity.getTicketType().getName();
         this.car = new Car(ticketEntity.getCar());
         this.ticketType = new TicketType(ticketEntity.getTicketType());
-        this.startDate = ticketEntity.getStartDate().toString();
-        this.endDate = ticketEntity.getEndDate().toString();
-        this.createdAt = ticketEntity.getCreatedAt().toString();
-        this.updatedAt = ticketEntity.getUpdatedAt().toString();
+        this.startDate = DatetimeConvert.dateToString(ticketEntity.getStartDate());
+        this.endDate = DatetimeConvert.dateToString(ticketEntity.getEndDate());
+        this.createdAt = DatetimeConvert.timastampToString(ticketEntity.getCreatedAt());
+        this.updatedAt = DatetimeConvert.timastampToString(ticketEntity.getUpdatedAt());
     }
 
     public static List<Ticket> getTickets(List<TicketEntity> tickets) {

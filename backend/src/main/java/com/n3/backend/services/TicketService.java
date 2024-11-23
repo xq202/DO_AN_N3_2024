@@ -1,13 +1,15 @@
 package com.n3.backend.services;
 
-import com.n3.backend.config.DatetimeConvert;
+import com.n3.backend.utils.DatetimeConvert;
 import com.n3.backend.dto.*;
 import com.n3.backend.dto.Ticket.Ticket;
 import com.n3.backend.dto.Ticket.TicketRequest;
 import com.n3.backend.dto.Ticket.TicketSearchRequest;
+import com.n3.backend.dto.Ticket.TicketSearchURequest;
 import com.n3.backend.entities.CarEntity;
 import com.n3.backend.entities.TicketEntity;
 import com.n3.backend.entities.TicketTypeEntity;
+import com.n3.backend.entities.UserEntity;
 import com.n3.backend.repositories.CarRepository;
 import com.n3.backend.repositories.TicketRepository;
 import com.n3.backend.repositories.TicketTypeRepository;
@@ -18,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.util.List;
 
 @Service
@@ -29,6 +30,8 @@ public class TicketService {
     TicketTypeRepository ticketTypeRepository;
     @Autowired
     CarRepository carRepository;
+    @Autowired
+    UserService userService;
 
     public ApiResponse<Ticket> addNewTicket(TicketRequest request){
         try {
@@ -47,7 +50,17 @@ public class TicketService {
 
     public ApiResponse<Ticket> getTicketById(int id){
         try {
+            if(ticketRepository.existsById(id) == false){
+                return new ApiResponse<>(false, 404, null, "Ticket not found");
+            }
+
             TicketEntity ticketEntity = ticketRepository.findById(id).get();
+
+            if(ticketEntity.getCar().getUser().getId() != userService.getCurrentUser().getId() && !userService.getCurrentUser().isAdmin()){
+                return new ApiResponse<>(false, 403, null, "You don't have permission to access this ticket");
+            }
+
+
             return new ApiResponse<>(true, 200, new Ticket(ticketEntity), "Ticket found");
         }
         catch (Exception e){
@@ -102,12 +115,35 @@ public class TicketService {
 
         }
     }
-    public ApiResponse<Ticket> getTicketByCarId(int carId){
+    public ApiResponse<List<Ticket>> getTicketForUser(TicketSearchURequest request){
         try {
-            return new ApiResponse(true, 200, new Ticket(ticketRepository.findByCarId(carId)), "Tickets found");
+            UserEntity currentUser = userService.getCurrentUser();
+            Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
+
+            List<TicketEntity> tickets;
+            int totalPage;
+            int totalItem;
+            List<Ticket> ticketList;
+
+            if(request.getIsExpired() < 0){
+                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndIsExpiredAndCreatedAtBetweenAndCarUserId(request.getCode(), request.getIsExpired() == 1 ? true : false, DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
+                tickets = data.stream().toList();
+                totalPage = data.getTotalPages();
+                totalItem = (int) data.getTotalElements();
+                ticketList = Ticket.getTickets(tickets);
+            }
+            else{
+                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(request.getCode(), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
+                tickets = data.stream().toList();
+                totalPage = data.getTotalPages();
+                totalItem = (int) data.getTotalElements();
+                ticketList = Ticket.getTickets(tickets);
+            }
+
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, ticketList), "Tickets found");
         }
         catch (Exception e){
-            return new ApiResponse(false, 400, null, e.getMessage());
+            return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
 

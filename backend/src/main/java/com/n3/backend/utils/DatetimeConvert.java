@@ -1,4 +1,4 @@
-package com.n3.backend.config;
+package com.n3.backend.utils;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -9,7 +9,7 @@ public class DatetimeConvert {
     public static String timastampToString(Timestamp date) {
         if(date == null) return "";
 
-        String pattern = "dd-MM-yyyy HH:mm:ss";
+        String pattern = "HH:mm:ss dd-MM-yyyy";
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
 
