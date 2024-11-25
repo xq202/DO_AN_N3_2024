@@ -35,7 +35,7 @@ public class InvoiceService {
     @Autowired
     private UserService userService;
     @Autowired
-    private PackingInfomationRepository packingInfomationRepository;
+    private PackingInformationRepository packingInformationRepository;
 
     public ApiResponse getAll(InvoiceSearchRequest request){
         try {
@@ -96,7 +96,7 @@ public class InvoiceService {
     public ApiResponse addInvoice(InvoiceRequest request){
         try {
             // lay thong tin packing
-            PackingInfomation packingInfomation = packingInfomationRepository.findFirst();
+            PackingInformation packingInformation = packingInformationRepository.findFirst();
 
             // khoi tao invoice
             InvoiceEntity invoiceEntity = new InvoiceEntity();
@@ -112,7 +112,7 @@ public class InvoiceService {
             List<TicketTypeIdCarId> products = request.getIds();
 
             // kiem tra so luong slot con trong
-            if(packingInfomation.getTotalSlotBooked() + products.size() > packingInfomation.getMaxSlotBooked()){
+            if(packingInformation.getTotalSlotBooked() + products.size() > packingInformation.getMaxSlotBooked()){
                 return new ApiResponse(false, 400, null, "No slot available");
             }
 
@@ -149,8 +149,8 @@ public class InvoiceService {
                 if(!userEntity.isAdmin()){
                     if(carEntity.getUser().getId() != userEntity.getId()){
                         // rollback so luong slot da dat
-                        packingInfomation.setTotalSlotBooked(packingInfomation.getTotalSlotBooked() - products.size());
-                        packingInfomationRepository.save(packingInfomation);
+                        packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() - products.size());
+                        packingInformationRepository.save(packingInformation);
 
                         return new ApiResponse(false, 400, null, "You don't have permission to buy ticket for this carId " + carEntity.getCode());
                     }
@@ -182,7 +182,7 @@ public class InvoiceService {
             UserEntity currentUser = userService.getCurrentUser();
 
             // lay thong tin packing
-            PackingInfomation packingInfomation = packingInfomationRepository.findFirst();
+            PackingInformation packingInformation = packingInformationRepository.findFirst();
 
             //kiem tra invoice co ton tai khong
             if(!invoiceRepository.existsById(id)){
@@ -208,12 +208,12 @@ public class InvoiceService {
             List<InvoiceDetailEntity> invoiceEntities = invoiceDetailRepository.findAllByInvoiceId(id);
 
             // kiem tra so luong slot con trong
-            if(packingInfomation.getTotalSlotBooked() + invoiceEntities.size() > packingInfomation.getMaxSlotBooked()){
+            if(packingInformation.getTotalSlotBooked() + invoiceEntities.size() > packingInformation.getMaxSlotBooked()){
                 return new ApiResponse(false, 400, null, "No slot available");
             }
 
             // cap nhat so luong slot da dat
-            packingInfomation.setTotalSlotBooked(packingInfomation.getTotalSlotBooked() + invoiceEntities.size());
+            packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() + invoiceEntities.size());
 
             //kiem tra invoice co ton tai khong
             if(!invoiceRepository.existsById(id)){
@@ -238,7 +238,7 @@ public class InvoiceService {
             }
 
             //luu lai so luong slot da dat
-            packingInfomationRepository.save(packingInfomation);
+            packingInformationRepository.save(packingInformation);
 
             //duyet qua tung invoice detail
             for (InvoiceDetailEntity invoiceDetailEntity : invoiceEntities) {

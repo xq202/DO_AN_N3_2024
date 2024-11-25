@@ -1,6 +1,8 @@
 package com.n3.backend.services;
 
-import com.n3.backend.dto.SlotInfo;
+import com.n3.backend.dto.ActionHistory.ActionHistoryOut;
+import com.n3.backend.dto.Car.Car;
+import com.n3.backend.dto.Ticket.Ticket;
 import com.n3.backend.handler.InfoWebSocketHandler;
 import com.n3.backend.repositories.*;
 import com.n3.backend.utils.DatetimeConvert;
@@ -10,6 +12,7 @@ import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
 import com.n3.backend.entities.*;
+import com.n3.backend.utils.TimeUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -27,7 +31,7 @@ public class ActionHistoryService {
     @Autowired
     private CarRepository carRepository;
     @Autowired
-    private PackingInfomationRepository packingInfomationRepository;
+    private PackingInformationRepository packingInformationRepository;
     @Autowired
     private UserService userService;
     @Autowired
@@ -36,6 +40,8 @@ public class ActionHistoryService {
     private InfoWebSocketHandler infoWebSocketHandler;
     @Autowired
     private TicketRepository ticketRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
@@ -111,7 +117,7 @@ public class ActionHistoryService {
 
     public ApiResponse addActionHistory(ActionHistoryRequest request){
         try {
-            PackingInfomation packingInfomation = packingInfomationRepository.findFirst();
+            PackingInformation packingInformation = packingInformationRepository.findFirst();
 
             try {
                 // check action
@@ -130,7 +136,6 @@ public class ActionHistoryService {
             }
 
             // check car is in parking
-            System.out.println(currentPackingRepository.existsByCarId(car.getId()));
             if(request.getAction().equals("IN")){
                 if(currentPackingRepository.existsByCarId(car.getId())){
                     return new ApiResponse(false, 400, null, "Car is in parking");
@@ -149,21 +154,49 @@ public class ActionHistoryService {
                 isBooked = true;
             }
 
+            double price = 0;
+
             if(request.getAction().equals("IN")){
-                if((isBooked ? packingInfomation.getTotalSlotBookedAvailable() : packingInfomation.getTotalSlotAvailable()) <= 0){
+                if((isBooked ? packingInformation.getTotalSlotBookedAvailable() : packingInformation.getTotalSlotAvailable()) <= 0){
                     return new ApiResponse(false, 400, null, "No slot available");
                 }
 
-                if(!isBooked) packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() - 1);
-                else packingInfomation.setTotalSlotBookedAvailable(packingInfomation.getTotalSlotBookedAvailable() - 1);
+                if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() - 1);
+                else packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() - 1);
 
                 CurrentPacking currentPacking = new CurrentPacking();
                 currentPacking.setCarId(car.getId());
                 currentPackingRepository.save(currentPacking);
             }
             else {
-                if(!isBooked) packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() + 1);
-                else packingInfomation.setTotalSlotBookedAvailable(packingInfomation.getTotalSlotBookedAvailable() + 1);
+                // tinh tien
+                if(!isBooked){
+                    ActionHistoryEntity lastActionIN = repository.findTopByActionAndCarIdOrderByCreatedAtDesc("IN", car.getId());
+                    System.out.println(lastActionIN.getCreatedAt());
+                    Timestamp timeOut = new Timestamp(System.currentTimeMillis());
+                    System.out.println(timeOut);
+
+                    if(lastActionIN == null){
+                        return new ApiResponse(false, 400, null, "Last in is null");
+                    }
+
+                    double time = TimeUtil.minusTimestamp(lastActionIN.getCreatedAt(), timeOut);
+                    System.out.println("time: " + time);
+
+                    price = time * packingInformation.getPricePerHour();
+                    System.out.println("price: " + price);
+
+                    if(car.getUser().getBalance() < price){
+                        return new ApiResponse(false, 400, null, "Not enough money");
+                    }
+
+                    car.getUser().setBalance(car.getUser().getBalance() - price);
+
+                    userRepository.save(car.getUser());
+                }
+
+                if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() + 1);
+                else packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + 1);
 
                 CurrentPacking currentPacking = currentPackingRepository.findByCarId(car.getId());
 
@@ -177,12 +210,19 @@ public class ActionHistoryService {
 
             repository.save(actionHistoryEntity);
 
-            packingInfomationRepository.save(packingInfomation);
+            packingInformationRepository.save(packingInformation);
 
             infoWebSocketHandler.sendSlotInfo();
 
 
-            return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "success");
+            return new ApiResponse(true,
+                    200,
+                    new ActionHistoryOut(new Car(car),
+                            actionHistoryEntity.getAction(),
+                            DatetimeConvert.timastampToString(actionHistoryEntity.getCreatedAt()),
+                            price,
+                            ticketOfCar==null ? null : new Ticket(ticketOfCar)),
+                    "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());

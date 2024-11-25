@@ -1,6 +1,7 @@
 package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ActionHistory.ActionHistory;
+import com.n3.backend.dto.ActionHistory.ActionHistoryOut;
 import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
 import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
@@ -32,7 +33,7 @@ public class ActionHistoryController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<ActionHistory> add(@RequestBody ActionHistoryRequest request){
+    public ApiResponse<ActionHistoryOut> add(@RequestBody ActionHistoryRequest request){
         return actionHistoryService.addActionHistory(request);
     }
 }

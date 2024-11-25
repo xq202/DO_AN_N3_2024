@@ -19,6 +19,7 @@ public class Ticket {
     private String updatedAt;
 
     public Ticket(TicketEntity ticketEntity) {
+        if(ticketEntity == null) return;
         this.id = ticketEntity.getId();
         this.name = ticketEntity.getTicketType().getName();
         this.car = new Car(ticketEntity.getCar());

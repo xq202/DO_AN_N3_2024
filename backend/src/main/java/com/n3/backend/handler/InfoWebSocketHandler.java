@@ -1,9 +1,8 @@
 package com.n3.backend.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.n3.backend.dto.SlotInfo;
-import com.n3.backend.services.InfoPackingService;
+import com.n3.backend.services.PackingInformationService;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
@@ -13,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class InfoWebSocketHandler extends TextWebSocketHandler {
     private final Set<WebSocketSession> sessions = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private final InfoPackingService infoPackingService;
-    public InfoWebSocketHandler(InfoPackingService infoPackingService) {
-        this.infoPackingService = infoPackingService;
+    private final PackingInformationService packingInformationService;
+    public InfoWebSocketHandler(PackingInformationService packingInformationService) {
+        this.packingInformationService = packingInformationService;
     }
 
     @Override
@@ -26,7 +25,7 @@ public class InfoWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         if(message.getPayload().equals("getInfo")) {
-            SlotInfo slotInfo = infoPackingService.getSlotInfo();
+            SlotInfo slotInfo = packingInformationService.getSlotInfo();
             broadcastMessage(slotInfo);
         }
     }
@@ -49,7 +48,7 @@ public class InfoWebSocketHandler extends TextWebSocketHandler {
     }
 
     public void sendSlotInfo(){
-        SlotInfo slotInfo = infoPackingService.getSlotInfo();
+        SlotInfo slotInfo = packingInformationService.getSlotInfo();
         broadcastMessage(slotInfo);
     }
 }

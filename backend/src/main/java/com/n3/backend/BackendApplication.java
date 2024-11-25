@@ -1,7 +1,7 @@
 package com.n3.backend;
 
-import com.n3.backend.entities.PackingInfomation;
-import com.n3.backend.repositories.PackingInfomationRepository;
+import com.n3.backend.entities.PackingInformation;
+import com.n3.backend.repositories.PackingInformationRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,20 +25,21 @@ public class BackendApplication {
     }
 
     @Bean
-    public CommandLineRunner createPacingInfo(PackingInfomationRepository repository){
+    public CommandLineRunner createPacingInfo(PackingInformationRepository repository){
         return (args) -> {
-            List<PackingInfomation> list = repository.findAll();
+            List<PackingInformation> list = repository.findAll();
 
             if(list.size() == 0){
-                PackingInfomation packingInfomation = new PackingInfomation();
-                packingInfomation.setName("Packing");
-                packingInfomation.setTotalSlotAvailable(100);
-                packingInfomation.setTotalSlot(100);
-                packingInfomation.setMaxSlotBooked(10);
-                packingInfomation.setTotalSlotBooked(10);
-                packingInfomation.setTotalSlotBookedAvailable(10);
+                PackingInformation packingInformation = new PackingInformation();
+                packingInformation.setName("Packing");
+                packingInformation.setTotalSlotAvailable(100);
+                packingInformation.setTotalSlot(100);
+                packingInformation.setMaxSlotBooked(10);
+                packingInformation.setTotalSlotBooked(10);
+                packingInformation.setTotalSlotBookedAvailable(10);
+                packingInformation.setPricePerHour(10000);
 
-                repository.save(packingInfomation);
+                repository.save(packingInformation);
             }
         };
     }

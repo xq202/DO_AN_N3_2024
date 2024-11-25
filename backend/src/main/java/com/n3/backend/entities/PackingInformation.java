@@ -4,7 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity
-public class PackingInfomation {
+public class PackingInformation {
     @Id
     private int id;
     private String name;
@@ -13,6 +13,7 @@ public class PackingInfomation {
     private int maxSlotBooked = 10;
     private int totalSlotBooked = 10;
     private int totalSlotBookedAvailable = 10;
+    private double pricePerHour = 10000;
 
     public int getId() {
         return id;
@@ -68,5 +69,13 @@ public class PackingInfomation {
 
     public void setTotalSlotBookedAvailable(int totalSlotBookedAvailable) {
         this.totalSlotBookedAvailable = totalSlotBookedAvailable;
+    }
+
+    public double getPricePerHour() {
+        return pricePerHour;
+    }
+
+    public void setPricePerHour(double pricePerHour) {
+        this.pricePerHour = pricePerHour;
     }
 }
