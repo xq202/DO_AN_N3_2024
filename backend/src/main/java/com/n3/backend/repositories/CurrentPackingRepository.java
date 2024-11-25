@@ -12,10 +12,8 @@ import java.util.List;
 
 @Repository
 public interface CurrentPackingRepository extends JpaRepository<CurrentPacking, Integer> {
-    CurrentPackingRepository findByCarId(int carId);
+    CurrentPacking findByCarId(int carId);
     boolean existsByCarId(int carId);
-
-    boolean deleteAllByCarId(int carId);
 
     @Query("select c from CurrentPacking c inner join CarEntity e on c.carId = e.id where e.code like concat('%', ?1, '%') and e.user.email like concat('%', ?2, '%')")
     Page<CurrentPacking> findAllCarPacking(String code, String email, Pageable pageable);

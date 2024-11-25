@@ -12,6 +12,7 @@ public class PackingInfomation {
     private int totalSlotAvailable = 100;
     private int maxSlotBooked = 10;
     private int totalSlotBooked = 10;
+    private int totalSlotBookedAvailable = 10;
 
     public int getId() {
         return id;
@@ -59,5 +60,13 @@ public class PackingInfomation {
 
     public void setTotalSlotBooked(int totalSlotBooked) {
         this.totalSlotBooked = totalSlotBooked;
+    }
+
+    public int getTotalSlotBookedAvailable() {
+        return totalSlotBookedAvailable;
+    }
+
+    public void setTotalSlotBookedAvailable(int totalSlotBookedAvailable) {
+        this.totalSlotBookedAvailable = totalSlotBookedAvailable;
     }
 }

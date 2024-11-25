@@ -1,5 +1,8 @@
 package com.n3.backend.services;
 
+import com.n3.backend.dto.SlotInfo;
+import com.n3.backend.handler.InfoWebSocketHandler;
+import com.n3.backend.repositories.*;
 import com.n3.backend.utils.DatetimeConvert;
 import com.n3.backend.dto.ActionHistory.ActionHistory;
 import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
@@ -7,10 +10,6 @@ import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
 import com.n3.backend.entities.*;
-import com.n3.backend.repositories.ActionHistoryRepository;
-import com.n3.backend.repositories.CarRepository;
-import com.n3.backend.repositories.CurrentPackingRepository;
-import com.n3.backend.repositories.PackingInfomationRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,11 +27,15 @@ public class ActionHistoryService {
     @Autowired
     private CarRepository carRepository;
     @Autowired
-    PackingInfomationRepository packingInfomationRepository;
+    private PackingInfomationRepository packingInfomationRepository;
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
-    CurrentPackingRepository currentPackingRepository;
+    private CurrentPackingRepository currentPackingRepository;
+    @Autowired
+    private InfoWebSocketHandler infoWebSocketHandler;
+    @Autowired
+    private TicketRepository ticketRepository;
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
@@ -127,6 +130,7 @@ public class ActionHistoryService {
             }
 
             // check car is in parking
+            System.out.println(currentPackingRepository.existsByCarId(car.getId()));
             if(request.getAction().equals("IN")){
                 if(currentPackingRepository.existsByCarId(car.getId())){
                     return new ApiResponse(false, 400, null, "Car is in parking");
@@ -138,20 +142,32 @@ public class ActionHistoryService {
                 }
             }
 
+            boolean isBooked = false;
+            TicketEntity ticketOfCar = ticketRepository.findFirstByCarIdAndIsExpired(car.getId(), false);
+
+            if(ticketOfCar != null){
+                isBooked = true;
+            }
+
             if(request.getAction().equals("IN")){
-                if(packingInfomation.getTotalSlotAvailable() <= 0){
+                if((isBooked ? packingInfomation.getTotalSlotBookedAvailable() : packingInfomation.getTotalSlotAvailable()) <= 0){
                     return new ApiResponse(false, 400, null, "No slot available");
                 }
 
-                packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() - 1);
+                if(!isBooked) packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() - 1);
+                else packingInfomation.setTotalSlotBookedAvailable(packingInfomation.getTotalSlotBookedAvailable() - 1);
 
                 CurrentPacking currentPacking = new CurrentPacking();
                 currentPacking.setCarId(car.getId());
                 currentPackingRepository.save(currentPacking);
             }
             else {
-                packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() + 1);
-                currentPackingRepository.deleteAllByCarId(car.getId());
+                if(!isBooked) packingInfomation.setTotalSlotAvailable(packingInfomation.getTotalSlotAvailable() + 1);
+                else packingInfomation.setTotalSlotBookedAvailable(packingInfomation.getTotalSlotBookedAvailable() + 1);
+
+                CurrentPacking currentPacking = currentPackingRepository.findByCarId(car.getId());
+
+                currentPackingRepository.delete(currentPacking);
             }
 
             ActionHistoryEntity actionHistoryEntity = new ActionHistoryEntity();
@@ -162,6 +178,9 @@ public class ActionHistoryService {
             repository.save(actionHistoryEntity);
 
             packingInfomationRepository.save(packingInfomation);
+
+            infoWebSocketHandler.sendSlotInfo();
+
 
             return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "success");
         }

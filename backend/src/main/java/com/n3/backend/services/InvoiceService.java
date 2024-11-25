@@ -177,27 +177,35 @@ public class InvoiceService {
     }
 
     public ApiResponse activeInvoice(int id){
-        PackingInfomation packingInfomation;
-        List<InvoiceDetailEntity> invoiceEntities;
-        InvoiceEntity invoiceEntity;
-
         try {
-            packingInfomation = packingInfomationRepository.findFirst();
+            //lay thong tin user hien tai
+            UserEntity currentUser = userService.getCurrentUser();
+
+            // lay thong tin packing
+            PackingInfomation packingInfomation = packingInfomationRepository.findFirst();
 
             //kiem tra invoice co ton tai khong
             if(!invoiceRepository.existsById(id)){
                 return new ApiResponse(false, 400, null, "Invoice not found");
             }
 
-            //lay danh sach invoice detail
-            invoiceEntities = invoiceDetailRepository.findAllByInvoiceId(id);
-
-            invoiceEntity = invoiceRepository.getOne(id);
+            // thong tin invoice
+            InvoiceEntity invoiceEntity = invoiceRepository.getOne(id);
 
             //kiem tra invoice da duoc active chua
             if(invoiceEntity.getStatus() == 1){
                 return new ApiResponse(false, 400, null, "Invoice already activated");
             }
+
+            // kiem tra quyen
+            if(!currentUser.isAdmin()){
+                if(invoiceEntity.getUser().getId() != currentUser.getId()){
+                    return new ApiResponse(false, 400, null, "You don't have permission to activate this invoice");
+                }
+            }
+
+            //lay danh sach invoice detail
+            List<InvoiceDetailEntity> invoiceEntities = invoiceDetailRepository.findAllByInvoiceId(id);
 
             // kiem tra so luong slot con trong
             if(packingInfomation.getTotalSlotBooked() + invoiceEntities.size() > packingInfomation.getMaxSlotBooked()){
@@ -206,22 +214,17 @@ public class InvoiceService {
 
             // cap nhat so luong slot da dat
             packingInfomation.setTotalSlotBooked(packingInfomation.getTotalSlotBooked() + invoiceEntities.size());
-            packingInfomationRepository.save(packingInfomation);
-        }
-        catch (Exception e){
-            return new ApiResponse(false, 500, null, e.getMessage());
-        }
 
-        try {
             //kiem tra invoice co ton tai khong
             if(!invoiceRepository.existsById(id)){
                 return new ApiResponse(false, 400, null, "Invoice not found");
             }
 
-            //lay thong tin user hien tai
-            UserEntity userEntity = userService.getCurrentUser();
+            // lay user dat invoice
+            UserEntity user = invoiceEntity.getUser();
+
             //lay so du user
-            double balance = userEntity.getBalance();
+            double balance = user.getBalance();
 
             //khoi tao tong tien invoice
             double total = 0;
@@ -229,10 +232,13 @@ public class InvoiceService {
             for (InvoiceDetailEntity invoiceDetailEntity : invoiceEntities) {
                 total += invoiceDetailEntity.getPrice();
             }
-//            //kiem tra so du co du de thanh toan khong
-//            if(balance < total){
-//                return new ApiResponse(false, 400, null, "Not enough balance");
-//            }
+            //kiem tra so du co du de thanh toan khong
+            if(balance < total){
+                return new ApiResponse(false, 400, null, "Not enough balance");
+            }
+
+            //luu lai so luong slot da dat
+            packingInfomationRepository.save(packingInfomation);
 
             //duyet qua tung invoice detail
             for (InvoiceDetailEntity invoiceDetailEntity : invoiceEntities) {
@@ -258,17 +264,21 @@ public class InvoiceService {
             }
             //active invoice
             invoiceEntity.setStatus(1);
+
+            //tru tien user
+            user.setBalance(balance - total);
+
+            //luu lai user
+            userRepository.save(user);
+
             //gan tong tien cho invoice
             invoiceEntity.setTotal(total);
+
             //luu lai invoice
             invoiceRepository.save(invoiceEntity);
 
             return new ApiResponse(true, 200, new Invoice(invoiceEntity), "Invoice activated successfully");
         } catch (Exception e){
-            // rollback so luong slot da dat
-            packingInfomation.setTotalSlotBooked(packingInfomation.getTotalSlotBooked() - invoiceEntities.size());
-            packingInfomationRepository.save(packingInfomation);
-
             return new ApiResponse(false, 500, null, e.getMessage());
         }
     }

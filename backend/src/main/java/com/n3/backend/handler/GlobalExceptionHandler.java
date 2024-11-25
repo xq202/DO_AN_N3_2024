@@ -1,4 +1,4 @@
-package com.n3.backend.config;
+package com.n3.backend.handler;
 
 import com.n3.backend.dto.ApiResponse;
 import org.springframework.http.HttpStatus;

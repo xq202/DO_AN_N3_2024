@@ -24,4 +24,6 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Integer> {
 
     @Query("select month(t.createdAt) as month, year(t.createdAt) as year, count(t.id) as total, sum(t.ticketType.price) as totalIncome from TicketEntity t where t.createdAt between ?1 and ?2 and  t.ticketType.id = ?3 group by year(t.createdAt), month(t.createdAt)")
     Page<Income> reportTotalIncome(Timestamp startDate, Timestamp endDate, int ticketTypeId, org.springframework.data.domain.Pageable pageable);
+
+    TicketEntity findFirstByCarIdAndIsExpired(int carId, boolean isExpired);
 }

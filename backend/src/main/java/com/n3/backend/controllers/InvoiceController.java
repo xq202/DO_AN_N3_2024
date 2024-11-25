@@ -45,7 +45,7 @@ public class InvoiceController {
     }
 
     @GetMapping("{id}/active")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Invoice> activeInvoice(@PathVariable int id){
         return invoiceService.activeInvoice(id);
     }

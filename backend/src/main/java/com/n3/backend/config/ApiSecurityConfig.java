@@ -1,11 +1,9 @@
-package com.n3.backend;
+package com.n3.backend.config;
 
-import com.n3.backend.config.CustomAccessDeniedHandler;
-import com.n3.backend.config.CustomAuthenticationPoint;
-import com.n3.backend.config.JwtAuthFilter;
+import com.n3.backend.handler.CustomAccessDeniedHandler;
+import com.n3.backend.handler.CustomAuthenticationPoint;
 import com.n3.backend.repositories.UserRepository;
 import com.n3.backend.services.UserService;
-import org.apache.catalina.filters.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +46,7 @@ public class ApiSecurityConfig {
                 .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest()

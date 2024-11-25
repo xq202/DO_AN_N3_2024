@@ -147,4 +147,7 @@ public class TicketService {
         }
     }
 
+    public TicketEntity getTicketAvailableByCarId(int carId){
+        return ticketRepository.findFirstByCarIdAndIsExpired(carId, false);
+    }
 }
