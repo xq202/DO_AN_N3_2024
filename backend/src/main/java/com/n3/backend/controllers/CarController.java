@@ -34,7 +34,7 @@ public class CarController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Car> addNewCar(@RequestBody CarRequest car){
         return carService.addNewCar(car);
     }
