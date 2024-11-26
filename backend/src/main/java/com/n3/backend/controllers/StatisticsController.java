@@ -1,6 +1,8 @@
 package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ApiResponse;
+import com.n3.backend.dto.Statistics.Income;
+import com.n3.backend.dto.Statistics.IncomeDto;
 import com.n3.backend.dto.Statistics.UserSpending;
 import com.n3.backend.services.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,7 @@ public class StatisticsController {
 
     @GetMapping("/income")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<Object[]>> incomeReport(){
+    public ApiResponse<List<IncomeDto>> incomeReport(){
         return statisticsService.incomeReport();
     }
 
