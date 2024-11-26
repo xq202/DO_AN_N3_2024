@@ -117,6 +117,8 @@ public class TicketService {
     }
     public ApiResponse<List<Ticket>> getTicketForUser(TicketSearchURequest request){
         try {
+            System.out.println(request.getStartDate());
+            System.out.println(request.getEndDate());
             UserEntity currentUser = userService.getCurrentUser();
             Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
 
@@ -125,7 +127,7 @@ public class TicketService {
             int totalItem;
             List<Ticket> ticketList;
 
-            if(request.getIsExpired() < 0){
+            if(request.getIsExpired() > 0){
                 Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndIsExpiredAndCreatedAtBetweenAndCarUserId(request.getCode(), request.getIsExpired() == 1 ? true : false, DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
                 tickets = data.stream().toList();
                 totalPage = data.getTotalPages();
@@ -133,7 +135,7 @@ public class TicketService {
                 ticketList = Ticket.getTickets(tickets);
             }
             else{
-                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(request.getCode(), DatetimeConvert.stringToDate(request.getStartDate()), DatetimeConvert.stringToDate(request.getEndDate()), currentUser.getId(), pageable);
+                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(request.getCode(), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
                 tickets = data.stream().toList();
                 totalPage = data.getTotalPages();
                 totalItem = (int) data.getTotalElements();

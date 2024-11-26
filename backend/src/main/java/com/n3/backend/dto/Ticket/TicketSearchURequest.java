@@ -1,15 +1,16 @@
 package com.n3.backend.dto.Ticket;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class TicketSearchURequest {
-    private String code;
-    private String startDate = (new Date(0)).toString();
-    private String endDate = (new Date(System.currentTimeMillis())).toString();
+    private String code = "";
+    private String startDate = (new Timestamp(0)).toString();
+    private String endDate = (new Timestamp(System.currentTimeMillis())).toString();
     private int isExpired = -1;
     private int page = 1;
     private int size = 10;
-    private String sort = "createdAt";
+    private String sort = "id";
     private boolean isReverse = true;
 
     public int isExpired() {

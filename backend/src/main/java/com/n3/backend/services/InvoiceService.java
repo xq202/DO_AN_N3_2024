@@ -251,6 +251,7 @@ public class InvoiceService {
                 ticketEntity.setStartDate(new Date(System.currentTimeMillis()));
                 ticketEntity.setEndDate(new Date(System.currentTimeMillis() + ticketTypeEntity.getDuration() * 24 * 60 * 60 * 1000));
                 ticketEntity.setExpired(false);
+                ticketEntity.setInvoiceId(invoiceEntity.getId());
 
                 //cong tien vao tong tien invoice
                 total += invoiceDetailEntity.getPrice();
