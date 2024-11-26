@@ -56,7 +56,7 @@ public class CarService {
 
             Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
 
-            Page data = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndId(request.getEmail(), request.getCode(), currentUser.getId(), pageable);
+            Page data = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndUserId(request.getEmail(), request.getCode(), currentUser.getId(), pageable);
 
             List<CarEntity> list = data.stream().toList();
             int totalPage = data.getTotalPages();

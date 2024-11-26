@@ -15,7 +15,7 @@ public interface CarRepository extends JpaRepository<CarEntity, Integer> {
     Page<CarEntity> findByCodeContaining(String code, Pageable pageable);
     CarEntity findByCode(String code);
 
-    Page<CarEntity> searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndId(String name, String code, int id, Pageable pageable);
+    Page<CarEntity> searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndUserId(String name, String code, int id, Pageable pageable);
     Page<CarEntity> searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCase(String name, String code, Pageable pageable);
 
 }
