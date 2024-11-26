@@ -18,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -149,4 +151,14 @@ public class TicketService {
         }
     }
 
+    @Scheduled(cron = "0 0 0 * * *")
+    public void checkExpiredTicket(){
+        List<TicketEntity> tickets = ticketRepository.findByIsExpired(false);
+        for (TicketEntity ticket : tickets) {
+            if(ticket.getEndDate().getTime() <= System.currentTimeMillis()){
+                ticket.setExpired(true);
+                ticketRepository.save(ticket);
+            }
+        }
+    }
 }

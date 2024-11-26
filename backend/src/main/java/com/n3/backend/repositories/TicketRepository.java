@@ -26,4 +26,6 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Integer> {
     Page<Income> reportTotalIncome(Timestamp startDate, Timestamp endDate, int ticketTypeId, org.springframework.data.domain.Pageable pageable);
 
     TicketEntity findFirstByCarIdAndIsExpired(int carId, boolean isExpired);
+
+    List<TicketEntity> findByIsExpired(boolean isExpired);
 }
