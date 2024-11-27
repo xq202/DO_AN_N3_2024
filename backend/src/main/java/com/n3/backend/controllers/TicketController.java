@@ -1,6 +1,7 @@
 package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ApiResponse;
+import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.Ticket.Ticket;
 import com.n3.backend.dto.Ticket.TicketRequest;
 import com.n3.backend.dto.Ticket.TicketSearchRequest;
@@ -25,7 +26,7 @@ public class TicketController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("")
-    public ApiResponse<List<Ticket>> getAll(@ModelAttribute TicketSearchRequest request){
+    public ApiResponse<DtoPage<Ticket>> getAll(@ModelAttribute TicketSearchRequest request){
         return ticketService.getAllTickets(request);
     }
 
@@ -48,7 +49,7 @@ public class TicketController {
     }
 
     @GetMapping("/user")
-    public ApiResponse<List<Ticket>> getByUser(@ModelAttribute TicketSearchURequest request){
+    public ApiResponse<DtoPage<Ticket>> getByUser(@ModelAttribute TicketSearchURequest request){
         return ticketService.getTicketForUser(request);
     }
 }

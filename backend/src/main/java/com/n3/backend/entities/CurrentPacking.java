@@ -10,15 +10,19 @@ public class CurrentPacking {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @JoinTable(name = "cars", joinColumns = @JoinColumn(name = "id"))
-    private int carId;
-
+    @ManyToOne
+    @JoinColumn(name = "car_id")
+    private CarEntity car;
+    @ManyToOne
+    @JoinColumn(name = "ticket_type_id")
+    private TicketTypeEntity ticketType;
     @CreationTimestamp
     private Timestamp createdAt;
 
-    public CurrentPacking(int id, int carId) {
-        this.id = id;
-        this.carId = carId;
+    public CurrentPacking(CarEntity car, TicketTypeEntity ticketType, Timestamp createdAt) {
+        this.car = car;
+        this.ticketType = ticketType;
+        this.createdAt = createdAt;
     }
 
     public CurrentPacking() {
@@ -33,11 +37,27 @@ public class CurrentPacking {
         this.id = id;
     }
 
-    public int getCarId() {
-        return carId;
+    public CarEntity getCar() {
+        return car;
     }
 
-    public void setCarId(int carId) {
-        this.carId = carId;
+    public void setCar(CarEntity car) {
+        this.car = car;
+    }
+
+    public TicketTypeEntity getTicketType() {
+        return ticketType;
+    }
+
+    public void setTicketType(TicketTypeEntity ticketType) {
+        this.ticketType = ticketType;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }

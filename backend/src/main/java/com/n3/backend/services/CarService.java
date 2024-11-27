@@ -2,6 +2,7 @@ package com.n3.backend.services;
 
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.Car.Car;
+import com.n3.backend.dto.Car.CarPacking;
 import com.n3.backend.dto.Car.CarRequest;
 import com.n3.backend.dto.Car.CarSearchRequest;
 import com.n3.backend.dto.DtoPage;
@@ -32,7 +33,7 @@ public class CarService {
     @Autowired
     CurrentPackingRepository currentPackingRepository;
 
-    public ApiResponse<List<Car>> getAll(CarSearchRequest request){
+    public ApiResponse getAll(CarSearchRequest request){
         try{
             Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
 
@@ -177,13 +178,12 @@ public class CarService {
 
             List<CurrentPacking> listPacking = data.stream().toList();
 
-            List<Integer> listId = listPacking.stream().map(CurrentPacking::getCarId).toList();
+            List<CarPacking> list = CarPacking.listCarPacking(listPacking);
 
-            List<CarEntity> list = repository.findAllById(listId);
             int totalPage = data.getTotalPages();
             int totalItem = (int) data.getTotalElements();
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, Car.listCar(list)), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, list), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());

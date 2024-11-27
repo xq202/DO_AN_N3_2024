@@ -1,10 +1,9 @@
 package com.n3.backend.controllers;
 
-import com.n3.backend.dto.ActionHistory.ActionHistory;
-import com.n3.backend.dto.ActionHistory.ActionHistoryOut;
-import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
-import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
+import com.n3.backend.dto.ActionHistory.*;
 import com.n3.backend.dto.ApiResponse;
+import com.n3.backend.dto.Car.CarSearchRequest;
+import com.n3.backend.dto.DtoPage;
 import com.n3.backend.services.ActionHistoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +21,12 @@ public class ActionHistoryController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<ActionHistory>> search(@ModelAttribute ActionHistorySearchRequest request){
+    public ApiResponse<DtoPage<ActionHistory>> search(@ModelAttribute ActionHistorySearchRequest request){
         return actionHistoryService.getAll(request);
     }
 
     @GetMapping("/car/{id}")
-    public ApiResponse getActionHistoryByCarId(@PathVariable int id, HttpServletRequest request){
+    public ApiResponse<DtoPage<ActionHistory>> getActionHistoryByCarId(@PathVariable int id, ActionHistoryOneCar request){
         return actionHistoryService.getByCar(id, request);
     }
 

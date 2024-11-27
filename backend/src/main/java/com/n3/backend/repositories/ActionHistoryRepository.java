@@ -18,7 +18,7 @@ public interface ActionHistoryRepository extends JpaRepository<ActionHistoryEnti
 //            "WHERE c.code = ?1 and a.action = ?2")
     Page<ActionHistoryEntity> searchByCarCodeContainingIgnoreCaseAndActionContainingIgnoreCaseAndCreatedAtBetween(String code, String action, Timestamp startDate, Timestamp endDate, Pageable pageable);
 
-    Page<ActionHistoryEntity> searchAllByCarIdAndActionContainingIgnoreCase(int id, String action, Pageable pageable);
+    Page<ActionHistoryEntity> searchAllByCarIdAndActionContainingIgnoreCaseAndCreatedAtBetween(int id, String action, Timestamp startDate, Timestamp endDate, Pageable pageable);
 
     ActionHistoryEntity findTopByActionAndCarIdOrderByCreatedAtDesc(String action, int carId);
 }

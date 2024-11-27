@@ -1,14 +1,12 @@
 package com.n3.backend.services;
 
-import com.n3.backend.dto.ActionHistory.ActionHistoryOut;
+import com.n3.backend.dto.ActionHistory.*;
 import com.n3.backend.dto.Car.Car;
+import com.n3.backend.dto.Car.CarSearchRequest;
 import com.n3.backend.dto.Ticket.Ticket;
 import com.n3.backend.handler.InfoWebSocketHandler;
 import com.n3.backend.repositories.*;
 import com.n3.backend.utils.DatetimeConvert;
-import com.n3.backend.dto.ActionHistory.ActionHistory;
-import com.n3.backend.dto.ActionHistory.ActionHistoryRequest;
-import com.n3.backend.dto.ActionHistory.ActionHistorySearchRequest;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
 import com.n3.backend.entities.*;
@@ -60,23 +58,31 @@ public class ActionHistoryService {
         }
     }
 
-    public ApiResponse getByCar(int id, HttpServletRequest request){
+    public ApiResponse getByCar(int id, ActionHistoryOneCar request){
         try {
+            if(carRepository.existsById(id) == false){
+                return new ApiResponse(false, 400, null, "Car not found");
+            }
+
+            CarEntity carEntity = carRepository.findById(id).get();
             // kiem tra quyen
             UserEntity user = userService.getCurrentUser();
             if(!user.isAdmin()){
-                if(carRepository.findById(id).get().getUser().getId() != user.getId()){
+                if(carEntity.getUser().getId() != user.getId()){
                     return new ApiResponse(false, 403, null, "You don't have permission to access this car");
                 }
             }
 
-            int page = Integer.parseInt(request.getParameter("page")==null ? "0" : request.getParameter("page"));
-            int size = Integer.parseInt(request.getParameter("size")==null ? "10" : request.getParameter("size"));
-            String sort = request.getParameter("sort")==null ? "id" : request.getParameter("sort");
-            String action = request.getParameter("action")==null ? "" : request.getParameter("action");
-            boolean reverse = Boolean.parseBoolean(request.getParameter("reverse")==null ? "false" : request.getParameter("reverse"));
-
-            Page data = repository.searchAllByCarIdAndActionContainingIgnoreCase(id, action, PageRequest.of(page, size, Sort.by(reverse ? Sort.Direction.DESC : Sort.Direction.ASC, sort)));
+            Page<ActionHistoryEntity> data = repository.searchAllByCarIdAndActionContainingIgnoreCaseAndCreatedAtBetween(
+                    id,
+                    request.getAction(),
+                    DatetimeConvert.stringToTimestamp(request.getStartDate()),
+                    DatetimeConvert.stringToTimestamp(request.getEndDate()),
+                    PageRequest.of(request.getPage() - 1,
+                            request.getSize(),
+                            Sort.by(
+                                    request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC,
+                                    request.getSort())));
 
             List<ActionHistoryEntity> actionHistoryEntitys = data.stream().toList();
             int totalPage = data.getTotalPages();
@@ -84,7 +90,7 @@ public class ActionHistoryService {
 
             List<ActionHistory> actionHistorys = ActionHistory.convertList(actionHistoryEntitys);
 
-            return new ApiResponse(true, 200, new DtoPage(totalPage, page+1, totalItem, actionHistorys), "success");
+            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, actionHistorys), "success");
         }
         catch(Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());
@@ -165,7 +171,8 @@ public class ActionHistoryService {
                 else packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() - 1);
 
                 CurrentPacking currentPacking = new CurrentPacking();
-                currentPacking.setCarId(car.getId());
+                currentPacking.setCar(car);
+                currentPacking.setTicketType(ticketOfCar == null ? null : ticketOfCar.getTicketType());
                 currentPackingRepository.save(currentPacking);
             }
             else {

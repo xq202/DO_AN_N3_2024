@@ -97,7 +97,7 @@ public class TicketService {
         }
     }
 
-    public ApiResponse<List<Ticket>> getAllTickets(TicketSearchRequest request) {
+    public ApiResponse getAllTickets(TicketSearchRequest request) {
         try {
             Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
 
@@ -118,7 +118,7 @@ public class TicketService {
 
         }
     }
-    public ApiResponse<List<Ticket>> getTicketForUser(TicketSearchURequest request){
+    public ApiResponse getTicketForUser(TicketSearchURequest request){
         try {
             System.out.println(request.getStartDate());
             System.out.println(request.getEndDate());

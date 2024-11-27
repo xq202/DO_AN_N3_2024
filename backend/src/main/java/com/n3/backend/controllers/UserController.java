@@ -1,6 +1,7 @@
 package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ApiResponse;
+import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.User.User;
 import com.n3.backend.dto.User.UserRequest;
 import com.n3.backend.services.UserService;
@@ -18,7 +19,7 @@ public class UserController {
 
     @GetMapping("/list-user")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<User>> getListUser(@ModelAttribute UserRequest request){
+    public ApiResponse<DtoPage<User>> getListUser(@ModelAttribute UserRequest request){
         return userService.getListUser(request);
     }
 }

@@ -1,6 +1,7 @@
 package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ApiResponse;
+import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.Invoice.Invoice;
 import com.n3.backend.dto.Invoice.InvoiceRequest;
 import com.n3.backend.dto.Invoice.InvoiceSearchRequest;
@@ -19,7 +20,7 @@ public class InvoiceController {
     private InvoiceService invoiceService;
 
     @GetMapping("")
-    public ApiResponse<List<Invoice>> getAllInvoices(@ModelAttribute InvoiceSearchRequest request){
+    public ApiResponse<DtoPage<Invoice>> getAllInvoices(@ModelAttribute InvoiceSearchRequest request){
         return invoiceService.getAll(request);
     }
 

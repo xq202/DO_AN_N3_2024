@@ -2,8 +2,11 @@ package com.n3.backend.controllers;
 
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.Car.Car;
+import com.n3.backend.dto.Car.CarPacking;
 import com.n3.backend.dto.Car.CarRequest;
 import com.n3.backend.dto.Car.CarSearchRequest;
+import com.n3.backend.dto.DtoPage;
+import com.n3.backend.entities.CurrentPacking;
 import com.n3.backend.services.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,12 +22,12 @@ public class CarController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<Car>> getAll(@ModelAttribute CarSearchRequest request){
+    public ApiResponse<DtoPage<Car>> getAll(@ModelAttribute CarSearchRequest request){
         return carService.getAll(request);
     }
 
     @GetMapping("/get-car-user")
-    public ApiResponse<List<Car>> getCarUser(@ModelAttribute CarSearchRequest request){
+    public ApiResponse<DtoPage<Car>> getCarUser(@ModelAttribute CarSearchRequest request){
         return carService.getCarCurrentUser(request);
     }
 
@@ -53,7 +56,7 @@ public class CarController {
 
     @GetMapping("/packing")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<List<Car>> getAllCarPacking(@ModelAttribute CarSearchRequest request){
+    public ApiResponse<DtoPage<CarPacking>> getAllCarPacking(@ModelAttribute CarSearchRequest request){
         return carService.getCarParking(request);
     }
 }
