@@ -19,6 +19,7 @@ public class DatetimeConvert {
     }
 
     public static Timestamp stringToTimestamp(String date) {
+        if(date.split(" ").length == 1) date += " 00:00:00";
         return (!date.isEmpty()) ? Timestamp.valueOf(date) : null;
     }
 

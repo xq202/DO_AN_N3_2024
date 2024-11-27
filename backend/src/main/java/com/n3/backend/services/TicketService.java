@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TicketService {
@@ -100,7 +101,7 @@ public class TicketService {
         try {
             Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort()));
 
-            Page data = ticketRepository.search("%"+request.getCode()+"%", "%"+request.getFullname()+"%", request.getTicketTypeId(), DatetimeConvert.stringToDate(request.getStartDate()), DatetimeConvert.stringToDate(request.getEndDate()), pageable);
+            Page data = ticketRepository.search(request.getCode(), request.getEmail(), request.getTicketTypeId(), DatetimeConvert.stringToDate(request.getStartDate()), DatetimeConvert.stringToDate(request.getEndDate()), request.getIsExpired(), pageable);
 
             List<TicketEntity> tickets = data.stream().toList();
             int totalPage = data.getTotalPages();
