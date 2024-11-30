@@ -13,8 +13,6 @@ public class PackingInformation {
     private int maxSlotBooked = 10;
     private int totalSlotBooked = 10;
     private int totalSlotBookedAvailable = 10;
-    private double pricePerHour = 10000;
-
     public int getId() {
         return id;
     }
@@ -69,13 +67,5 @@ public class PackingInformation {
 
     public void setTotalSlotBookedAvailable(int totalSlotBookedAvailable) {
         this.totalSlotBookedAvailable = totalSlotBookedAvailable;
-    }
-
-    public double getPricePerHour() {
-        return pricePerHour;
-    }
-
-    public void setPricePerHour(double pricePerHour) {
-        this.pricePerHour = pricePerHour;
     }
 }

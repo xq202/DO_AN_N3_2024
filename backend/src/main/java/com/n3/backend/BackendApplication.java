@@ -1,7 +1,9 @@
 package com.n3.backend;
 
 import com.n3.backend.entities.PackingInformation;
+import com.n3.backend.entities.TicketTypeEntity;
 import com.n3.backend.repositories.PackingInformationRepository;
+import com.n3.backend.repositories.TicketTypeRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -37,9 +39,35 @@ public class BackendApplication {
                 packingInformation.setMaxSlotBooked(10);
                 packingInformation.setTotalSlotBooked(10);
                 packingInformation.setTotalSlotBookedAvailable(10);
-                packingInformation.setPricePerHour(10000);
 
                 repository.save(packingInformation);
+            }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner addTicketType(TicketTypeRepository ticketTypeRepository){
+        return (args) -> {
+            TicketTypeEntity ticketTypeEntity = ticketTypeRepository.findFirstByType("hour");
+
+            if(ticketTypeEntity == null){
+                ticketTypeEntity = new TicketTypeEntity();
+                ticketTypeEntity.setType("hour");
+                ticketTypeEntity.setPrice(10000);
+                ticketTypeEntity.setName("Ve luot");
+
+                ticketTypeRepository.save(ticketTypeEntity);
+            }
+
+            TicketTypeEntity ticketTypeEntity1 = ticketTypeRepository.findFirstByType("month");
+            if(ticketTypeEntity1 == null){
+                ticketTypeEntity1 = new TicketTypeEntity();
+                ticketTypeEntity1.setType("month");
+                ticketTypeEntity1.setPrice(1000000);
+                ticketTypeEntity1.setName("Ve thang");
+                ticketTypeEntity1.setDuration(30);
+
+                ticketTypeRepository.save(ticketTypeEntity1);
             }
         };
     }

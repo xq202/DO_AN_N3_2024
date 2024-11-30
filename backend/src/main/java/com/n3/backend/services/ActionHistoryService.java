@@ -40,6 +40,8 @@ public class ActionHistoryService {
     private TicketRepository ticketRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    TicketTypeRepository ticketTypeRepository;
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
@@ -153,10 +155,19 @@ public class ActionHistoryService {
                 }
             }
 
-            boolean isBooked = false;
-            TicketEntity ticketOfCar = ticketRepository.findFirstByCarIdAndEndDateAfter(car.getId(), new Timestamp(System.currentTimeMillis()));
+            ActionHistoryEntity lastActionIN = repository.findTopByActionAndCarIdOrderByCreatedAtDesc("IN", car.getId());
 
-            if(ticketOfCar != null){
+            boolean isBooked = false;
+
+            TicketEntity ticketOfCar;
+            if(ticketRepository.existsById(lastActionIN.getTicketId())){
+                ticketOfCar = ticketRepository.getOne(lastActionIN.getTicketId());
+            }
+            else {
+                ticketOfCar = ticketRepository.findFirstByCarIdAndEndDateAfter(car.getId(), new Timestamp(System.currentTimeMillis()));;
+            }
+
+            if(ticketOfCar != null && !ticketOfCar.getTicketType().getType().equals("hour")){
                 isBooked = true;
             }
 
@@ -165,6 +176,16 @@ public class ActionHistoryService {
             if(request.getAction().equals("IN")){
                 if((isBooked ? packingInformation.getTotalSlotBookedAvailable() : packingInformation.getTotalSlotAvailable()) <= 0){
                     return new ApiResponse(false, 400, null, "No slot available");
+                }
+
+                // chua mua ve thang thi tao ve luot
+                if (!isBooked) {
+                    TicketEntity ticket = new TicketEntity();
+                    ticket.setCar(car);
+                    ticket.setTicketType(ticketTypeRepository.findFirstByType("hour"));
+                    ticket.setStartDate(new Timestamp(System.currentTimeMillis()));
+                    ticket.setInvoiceId(-1);
+                    ticketOfCar = ticketRepository.save(ticket);
                 }
 
                 if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() - 1);
@@ -178,7 +199,6 @@ public class ActionHistoryService {
             else {
                 // tinh tien
                 if(!isBooked){
-                    ActionHistoryEntity lastActionIN = repository.findTopByActionAndCarIdOrderByCreatedAtDesc("IN", car.getId());
                     System.out.println(lastActionIN.getCreatedAt());
                     Timestamp timeOut = new Timestamp(System.currentTimeMillis());
                     System.out.println(timeOut);
@@ -190,8 +210,21 @@ public class ActionHistoryService {
                     double time = TimeUtil.minusTimestamp(lastActionIN.getCreatedAt(), timeOut);
                     System.out.println("time: " + time);
 
-                    price = time * packingInformation.getPricePerHour();
+                    price = time * ticketOfCar.getPrice();
                     System.out.println("price: " + price);
+
+                    TicketEntity ticket = ticketOfCar;
+
+                    if (ticket == null) {
+                        ticket = new TicketEntity();
+                        ticket.setCar(car);
+                        ticket.setTicketType(ticketTypeRepository.findFirstByType("hour"));
+                        ticket.setStartDate(lastActionIN.getCreatedAt());
+                    }
+
+                    ticket.setEndDate(timeOut);
+                    ticket.setPrice(price);
+                    ticketOfCar = ticketRepository.save(ticket);
 
 //                    if(car.getUser().getBalance() < price){
 //                        return new ApiResponse(false, 400, null, "Not enough money");
@@ -200,6 +233,25 @@ public class ActionHistoryService {
 //                    car.getUser().setBalance(car.getUser().getBalance() - price);
 
 //                    userRepository.save(car.getUser());
+                }
+                else {
+                    if(ticketOfCar.getEndDate().getTime() < System.currentTimeMillis()){
+                        double time = TimeUtil.minusTimestamp(ticketOfCar.getEndDate(), new Timestamp(System.currentTimeMillis()));
+
+                        price = time * ticketOfCar.getPrice();
+
+                        TicketEntity ticket = new TicketEntity();
+                        ticket.setCar(car);
+                        ticket.setTicketType(ticketTypeRepository.findFirstByType("hour"));
+                        ticket.setStartDate(ticketOfCar.getEndDate());
+                        ticket.setEndDate(new Timestamp(System.currentTimeMillis()));
+                        ticket.setPrice(price);
+                        ticketRepository.save(ticket);
+                    }
+                    else{
+                        ticketOfCar.setPrice(0);
+                        ticketRepository.save(ticketOfCar);
+                    }
                 }
 
                 if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() + 1);
@@ -214,6 +266,7 @@ public class ActionHistoryService {
 
             actionHistoryEntity.setCar(car);
             actionHistoryEntity.setAction(request.getAction());
+            actionHistoryEntity.setTicketId(ticketOfCar == null ? -1 : ticketOfCar.getId());
 
             repository.save(actionHistoryEntity);
 

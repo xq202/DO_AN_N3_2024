@@ -14,6 +14,7 @@ public class ActionHistoryEntity {
     @ManyToOne
     @JoinColumn(name = "car_id", nullable = false)
     private CarEntity car;
+    private int ticketId;
     String action;
     @CreationTimestamp
     @Column(name = "created_at")
@@ -36,6 +37,14 @@ public class ActionHistoryEntity {
 
     public void setCar(CarEntity car) {
         this.car = car;
+    }
+
+    public int getTicketId() {
+        return ticketId;
+    }
+
+    public void setTicketId(int ticketId) {
+        this.ticketId = ticketId;
     }
 
     public String getAction() {

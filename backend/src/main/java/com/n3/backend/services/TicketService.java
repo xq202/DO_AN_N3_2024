@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -131,7 +132,7 @@ public class TicketService {
             List<Ticket> ticketList;
 
             if(request.getIsExpired() > 0){
-                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndIsExpiredAndCreatedAtBetweenAndCarUserId(request.getCode(), request.getIsExpired() == 1 ? true : false, DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
+                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndEndDateAfterAndCreatedAtBetweenAndCarUserId(request.getCode(), new Timestamp(System.currentTimeMillis()), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
                 tickets = data.stream().toList();
                 totalPage = data.getTotalPages();
                 totalItem = (int) data.getTotalElements();
@@ -153,12 +154,5 @@ public class TicketService {
     }
 
 //    @Scheduled(cron = "0 0 0 * * *")
-    public void checkExpiredTicket(){
-        List<TicketEntity> tickets = ticketRepository.findByIsExpired(false);
-        for (TicketEntity ticket : tickets) {
-            if(ticket.getEndDate().getTime() <= System.currentTimeMillis()){
-                ticketRepository.save(ticket);
-            }
-        }
-    }
+    public void autoCheckExpiredTicket(){}
 }

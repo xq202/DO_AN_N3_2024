@@ -12,5 +12,7 @@ public interface TicketTypeRepository extends JpaRepository<TicketTypeEntity, In
     public
     List<TicketTypeEntity> findAll();
 
-    public TicketTypeEntity getOne(int id);
+    TicketTypeEntity getOne(int id);
+
+    TicketTypeEntity findFirstByType(String type);
 }
