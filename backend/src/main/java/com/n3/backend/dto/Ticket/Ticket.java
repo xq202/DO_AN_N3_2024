@@ -24,8 +24,8 @@ public class Ticket {
         this.name = ticketEntity.getTicketType().getName();
         this.car = new Car(ticketEntity.getCar());
         this.ticketType = new TicketType(ticketEntity.getTicketType());
-        this.startDate = DatetimeConvert.dateToString(ticketEntity.getStartDate());
-        this.endDate = DatetimeConvert.dateToString(ticketEntity.getEndDate());
+        this.startDate = DatetimeConvert.timastampToString(ticketEntity.getStartDate());
+        this.endDate = DatetimeConvert.timastampToString(ticketEntity.getEndDate());
         this.createdAt = DatetimeConvert.timastampToString(ticketEntity.getCreatedAt());
         this.updatedAt = DatetimeConvert.timastampToString(ticketEntity.getUpdatedAt());
     }

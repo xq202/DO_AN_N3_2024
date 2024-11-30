@@ -17,16 +17,16 @@ public class TicketEntity {
     @ManyToOne
     @JoinColumn(name = "ticket_type_id", nullable = false)
     private TicketTypeEntity ticketType;
+    private double price;
     @ManyToOne
     @JoinColumn(name = "car_id", nullable = false)
     private CarEntity car;
     @Column(nullable = false)
     private int invoiceId;
     @Column(nullable = false)
-    private Date startDate;
+    private Timestamp startDate;
     @Column(nullable = false)
-    private Date endDate;
-    private boolean isExpired = false;
+    private Timestamp endDate;
     @CreationTimestamp
     private Timestamp createdAt;
     @UpdateTimestamp
@@ -48,6 +48,14 @@ public class TicketEntity {
         this.ticketType = ticketType;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     public CarEntity getCar() {
         return car;
     }
@@ -56,19 +64,19 @@ public class TicketEntity {
         this.car = car;
     }
 
-    public Date getStartDate() {
+    public Timestamp getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(Timestamp startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public Timestamp getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(Timestamp endDate) {
         this.endDate = endDate;
     }
 
@@ -86,14 +94,6 @@ public class TicketEntity {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public boolean isExpired() {
-        return isExpired;
-    }
-
-    public void setExpired(boolean expired) {
-        isExpired = expired;
     }
 
     public int getInvoiceId() {

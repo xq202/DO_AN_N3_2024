@@ -17,6 +17,13 @@ public class TicketTypeService {
 
     public ApiResponse<TicketType> addNewTicketType(TicketTypeRequest request){
         try {
+            try{
+                Double.valueOf(request.getPrice());
+            }
+            catch (Exception e){
+                return new ApiResponse<>(false, 400, null, "Price must be a number");
+            }
+
             TicketTypeEntity ticketType = new TicketTypeEntity(0, request.getName(), request.getPrice());
             repository.save(ticketType);
             return new ApiResponse<TicketType>(true, 200, new TicketType(ticketType), "success");
@@ -60,6 +67,15 @@ public class TicketTypeService {
 
     public ApiResponse<TicketType> update(int id, TicketTypeRequest request){
         try {
+            if(repository.existsById(id) == false){
+                return new ApiResponse<>(false, 400, null, "Ticket type not found");
+            }
+            try{
+                Double.valueOf(request.getPrice());
+            }
+            catch (Exception e){
+                return new ApiResponse<>(false, 400, null, "Price must be a number");
+            }
             TicketTypeEntity ticketType = repository.getOne(id);
             ticketType.setName(request.getName());
             ticketType.setPrice(request.getPrice());

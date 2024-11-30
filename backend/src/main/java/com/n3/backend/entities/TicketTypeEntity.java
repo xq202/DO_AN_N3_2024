@@ -14,6 +14,7 @@ public class TicketTypeEntity {
     private int id;
     @Column(nullable = false)
     private String name;
+    private String type;
     @Column(nullable = false)
     private double price;
     @Column(nullable = false)
@@ -51,6 +52,14 @@ public class TicketTypeEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public double getPrice() {

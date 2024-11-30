@@ -40,18 +40,12 @@ public class UserEntity implements UserDetails {
     private boolean isAdmin;
     @Column(columnDefinition = "int default 0", name = "is_active")
     private int isActive;
-    @Column(columnDefinition = "int default 0")
-    private Double balance;
     @Column(columnDefinition = "varchar(255) default 'employee' ")
     private String position;
     @CreationTimestamp
     private Timestamp createdAt;
     @UpdateTimestamp
     private Timestamp updatedAt;
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
 
     public Set<String> getRoles() {
         if(isAdmin) return Set.of("ROLE_ADMIN");
@@ -116,14 +110,6 @@ public class UserEntity implements UserDetails {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(double balance) {
-        this.balance = balance;
     }
 
     public String getPosition() {

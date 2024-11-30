@@ -22,7 +22,7 @@ public class User {
     public User(UserEntity user){
         setId(user.getId());
         setAddress(user.getAddress());
-        setBalance(user.getBalance());
+//        setBalance(user.getBalance());
         setEmail(user.getEmail());
         setFullname(user.getFullname());
         setPosition(user.getPosition());

@@ -41,8 +41,8 @@ public class TicketService {
             TicketEntity ticketEntity = new TicketEntity();
             ticketEntity.setCar(carRepository.findById(request.getCarId()).get());
             ticketEntity.setTicketType(ticketTypeRepository.getOne(request.getTicketTypeId()));
-            ticketEntity.setStartDate(DatetimeConvert.stringToDate(request.getStartDate()));
-            ticketEntity.setEndDate(DatetimeConvert.stringToDate(request.getEndDate()));
+            ticketEntity.setStartDate(DatetimeConvert.stringToTimestamp(request.getStartDate()));
+            ticketEntity.setEndDate(DatetimeConvert.stringToTimestamp(request.getEndDate()));
 
             return new ApiResponse<>(true, 200, new Ticket(ticketRepository.save(ticketEntity)), "Ticket added successfully");
         }
@@ -76,8 +76,8 @@ public class TicketService {
             TicketEntity ticketEntity = ticketRepository.findById(id).get();
             ticketEntity.setCar(new CarEntity(request.getCarId()));
             ticketEntity.setTicketType(new TicketTypeEntity(request.getTicketTypeId()));
-            ticketEntity.setStartDate(DatetimeConvert.stringToDate(request.getStartDate()));
-            ticketEntity.setEndDate(DatetimeConvert.stringToDate(request.getEndDate()));
+            ticketEntity.setStartDate(DatetimeConvert.stringToTimestamp(request.getStartDate()));
+            ticketEntity.setEndDate(DatetimeConvert.stringToTimestamp(request.getEndDate()));
             ticketRepository.save(ticketEntity);
             return new ApiResponse<>(true, 200, new Ticket(ticketEntity), "Ticket updated successfully");
         }
@@ -152,12 +152,11 @@ public class TicketService {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+//    @Scheduled(cron = "0 0 0 * * *")
     public void checkExpiredTicket(){
         List<TicketEntity> tickets = ticketRepository.findByIsExpired(false);
         for (TicketEntity ticket : tickets) {
             if(ticket.getEndDate().getTime() <= System.currentTimeMillis()){
-                ticket.setExpired(true);
                 ticketRepository.save(ticket);
             }
         }

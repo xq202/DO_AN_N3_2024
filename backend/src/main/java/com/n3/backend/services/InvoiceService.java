@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -221,10 +222,10 @@ public class InvoiceService {
             }
 
             // lay user dat invoice
-            UserEntity user = invoiceEntity.getUser();
+//            UserEntity user = invoiceEntity.getUser();
 
             //lay so du user
-            double balance = user.getBalance();
+//            double balance = user.getBalance();
 
             //khoi tao tong tien invoice
             double total = 0;
@@ -233,9 +234,9 @@ public class InvoiceService {
                 total += invoiceDetailEntity.getPrice();
             }
             //kiem tra so du co du de thanh toan khong
-            if(balance < total){
-                return new ApiResponse(false, 400, null, "Not enough balance");
-            }
+//            if(balance < total){
+//                return new ApiResponse(false, 400, null, "Not enough balance");
+//            }
 
             //luu lai so luong slot da dat
             packingInformationRepository.save(packingInformation);
@@ -248,9 +249,8 @@ public class InvoiceService {
                 ticketEntity.setCar(carRepository.getOne(invoiceDetailEntity.getCarId()));
                 TicketTypeEntity ticketTypeEntity = ticketTypeRepository.getOne(invoiceDetailEntity.getTicketTypeId());
                 ticketEntity.setTicketType(ticketTypeEntity);
-                ticketEntity.setStartDate(new Date(System.currentTimeMillis()));
-                ticketEntity.setEndDate(new Date(System.currentTimeMillis() + ticketTypeEntity.getDuration() * 24 * 60 * 60 * 1000));
-                ticketEntity.setExpired(false);
+                ticketEntity.setStartDate(new Timestamp(System.currentTimeMillis()));
+                ticketEntity.setEndDate(new Timestamp(System.currentTimeMillis() + ticketTypeEntity.getDuration() * 24 * 60 * 60 * 1000));
                 ticketEntity.setInvoiceId(invoiceEntity.getId());
 
                 //cong tien vao tong tien invoice
@@ -267,10 +267,10 @@ public class InvoiceService {
             invoiceEntity.setStatus(1);
 
             //tru tien user
-            user.setBalance(balance - total);
+//            user.setBalance(balance - total);
 
             //luu lai user
-            userRepository.save(user);
+//            userRepository.save(user);
 
             //gan tong tien cho invoice
             invoiceEntity.setTotal(total);

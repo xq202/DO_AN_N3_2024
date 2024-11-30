@@ -154,7 +154,7 @@ public class ActionHistoryService {
             }
 
             boolean isBooked = false;
-            TicketEntity ticketOfCar = ticketRepository.findFirstByCarIdAndIsExpired(car.getId(), false);
+            TicketEntity ticketOfCar = ticketRepository.findFirstByCarIdAndEndDateAfter(car.getId(), new Timestamp(System.currentTimeMillis()));
 
             if(ticketOfCar != null){
                 isBooked = true;
@@ -193,13 +193,13 @@ public class ActionHistoryService {
                     price = time * packingInformation.getPricePerHour();
                     System.out.println("price: " + price);
 
-                    if(car.getUser().getBalance() < price){
-                        return new ApiResponse(false, 400, null, "Not enough money");
-                    }
+//                    if(car.getUser().getBalance() < price){
+//                        return new ApiResponse(false, 400, null, "Not enough money");
+//                    }
 
-                    car.getUser().setBalance(car.getUser().getBalance() - price);
+//                    car.getUser().setBalance(car.getUser().getBalance() - price);
 
-                    userRepository.save(car.getUser());
+//                    userRepository.save(car.getUser());
                 }
 
                 if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() + 1);

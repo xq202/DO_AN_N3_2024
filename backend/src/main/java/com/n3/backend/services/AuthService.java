@@ -60,7 +60,7 @@ public class AuthService {
                     catch (Exception e){
 
                     }
-                    userNew.setBalance(0);
+//                    userNew.setBalance(0);
                     userNew.setPassword(PasswordUtil.encodePassword(request.getPassword()));
 
                     try {
