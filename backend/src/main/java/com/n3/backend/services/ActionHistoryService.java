@@ -48,6 +48,8 @@ public class ActionHistoryService {
     private InvoiceRepository invoiceRepository;
     @Autowired
     private VNPayService vnpayService;
+    @Autowired
+    InvoiceDetailRepository invoiceDetailRepository;
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
@@ -225,7 +227,15 @@ public class ActionHistoryService {
                     if(price < 10000) price = 10000;
                     invoiceEntity.setTotal(price);
                     invoiceEntity.setCreatedAt(lastActionIN.getCreatedAt());
-                    invoiceRepository.save(invoiceEntity);
+                    invoiceEntity = invoiceRepository.save(invoiceEntity);
+
+                    InvoiceDetailEntity invoiceDetailEntity = new InvoiceDetailEntity();
+                    invoiceDetailEntity.setInvoiceId(invoiceEntity.getId());
+                    invoiceDetailEntity.setCarId(car.getId());
+                    invoiceDetailEntity.setPrice(price);
+                    invoiceDetailEntity.setTicketTypeId(lastActionIN.getTicketTypeId());
+
+                    invoiceDetailRepository.save(invoiceDetailEntity);
 
                     String url = vnpayService.createLink(price, invoiceEntity.getCode(), "http://localhost:3000/home", invoiceEntity.getCode(), null);
 
@@ -236,7 +246,8 @@ public class ActionHistoryService {
                     if(ticketOfCar.getEndDate().getTime() < System.currentTimeMillis()){
                         double time = TimeUtil.minusTimestamp(ticketOfCar.getEndDate(), Timestamp.valueOf(LocalDateTime.now()));
 
-                        price = time * ticketTypeRepository.findFirstByType("hour").getPrice();
+                        TicketTypeEntity ticketType = ticketTypeRepository.findFirstByType("hour");
+                        price = time * ticketType.getPrice();
 
                         InvoiceEntity invoiceEntity = new InvoiceEntity();
                         invoiceEntity.setUser(car.getUser());
@@ -244,6 +255,13 @@ public class ActionHistoryService {
                         invoiceEntity.setTotal(price);
                         invoiceEntity.setCreatedAt(ticketOfCar.getEndDate());
                         invoiceRepository.save(invoiceEntity);
+
+                        InvoiceDetailEntity invoiceDetailEntity = new InvoiceDetailEntity();
+                        invoiceDetailEntity.setInvoiceId(invoiceEntity.getId());
+                        invoiceDetailEntity.setCarId(car.getId());
+                        invoiceDetailEntity.setPrice(price);
+                        invoiceDetailEntity.setTicketTypeId(ticketType.getId());
+                        invoiceDetailRepository.save(invoiceDetailEntity);
 
                         String url = vnpayService.createLink(price, invoiceEntity.getCode(), "http://localhost:3000/home", invoiceEntity.getCode(), null);
 
@@ -279,6 +297,7 @@ public class ActionHistoryService {
 
     public void actionCarOut(int carId)
     {
+        System.out.println("actionCarOut");
         PackingInformation packingInformation = packingInformationRepository.findFirst();
 
         packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() + 1);

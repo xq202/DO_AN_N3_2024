@@ -299,7 +299,7 @@ public class InvoiceService {
 
     public void activeOnlineByCode(String code, String errorCode){
         InvoiceEntity invoice = invoiceRepository.findByCode(code);
-        if(invoice == null){
+        if(invoice == null || invoice.getStatus() == 1){
             return ;
         }
 
@@ -327,15 +327,16 @@ public class InvoiceService {
                 ticketEntity.setStartDate(startDate);
                 ticketEntity.setEndDate(endDate);
                 ticketEntity.setInvoiceId(invoice.getId());
-                ticketRepository.save(ticketEntity);
+                ticketEntity.setPrice(invoiceDetailEntity.getPrice());
+                ticketEntity = ticketRepository.save(ticketEntity);
+
+                invoiceDetailEntity.setTicketId(ticketEntity.getId());
+                invoiceDetailRepository.save(invoiceDetailEntity);
             }
 
             invoiceRepository.save(invoice);
         }
         else {
-            if(invoice.getStatus() == 1){
-                return;
-            }
             PackingInformation packingInformation = packingInformationRepository.findFirst();
             packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() - invoiceDetailEntityList.size());
             packingInformationRepository.save(packingInformation);
