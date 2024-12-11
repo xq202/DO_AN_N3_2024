@@ -13,6 +13,7 @@ public class Ticket {
     private String name;
     private Car car;
     private TicketType ticketType;
+    private double price;
     private String startDate;
     private String endDate;
     private String createdAt;
@@ -24,6 +25,7 @@ public class Ticket {
         this.name = ticketEntity.getTicketType().getName();
         this.car = new Car(ticketEntity.getCar());
         this.ticketType = new TicketType(ticketEntity.getTicketType());
+        this.price = ticketEntity.getPrice();
         this.startDate = DatetimeConvert.timastampToString(ticketEntity.getStartDate());
         this.endDate = DatetimeConvert.timastampToString(ticketEntity.getEndDate());
         this.createdAt = DatetimeConvert.timastampToString(ticketEntity.getCreatedAt());
@@ -100,5 +102,13 @@ public class Ticket {
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }
