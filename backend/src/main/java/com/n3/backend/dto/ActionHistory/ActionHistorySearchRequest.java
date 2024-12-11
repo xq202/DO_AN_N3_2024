@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class ActionHistorySearchRequest {
     private String code = "";
@@ -14,7 +15,7 @@ public class ActionHistorySearchRequest {
     private boolean reverse;
     private String sort = "id";
     String startDate = (new Timestamp(0)).toString();
-    String endDate = (new Timestamp(System.currentTimeMillis())).toString();
+    String endDate = (Timestamp.valueOf(LocalDateTime.now())).toString();
 
     public ActionHistorySearchRequest() {
     }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class StatisticsService {
     }
 
     public ApiResponse incomeReport(){
-        Timestamp endDate = new Timestamp(System.currentTimeMillis());
+        Timestamp endDate = Timestamp.valueOf(LocalDateTime.now());
         Timestamp startDate = Timestamp.valueOf(endDate.toLocalDateTime().minusMonths(6));
 
         List<TicketTypeEntity> ticketTypes = ticketTypeRepository.findAll();

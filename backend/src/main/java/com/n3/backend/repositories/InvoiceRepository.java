@@ -14,4 +14,6 @@ public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Integer>
 
     @Query("select i.user.fullname as username, i.user.email as email, sum(i.total) as total from InvoiceEntity i where i.status = 1 group by i.user.id")
     Page<UserSpending> reportTotalIncome(Pageable pageable);
+
+    InvoiceEntity findByCode(String code);
 }

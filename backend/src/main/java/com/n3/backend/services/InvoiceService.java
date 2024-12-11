@@ -1,5 +1,6 @@
 package com.n3.backend.services;
 
+import com.n3.backend.dto.ActionHistory.ResponseAction;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.Invoice.Invoice;
@@ -17,14 +18,13 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class InvoiceService {
     @Autowired
     private InvoiceRepository invoiceRepository;
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private InvoiceDetailRepository invoiceDetailRepository;
     @Autowired
@@ -37,6 +37,10 @@ public class InvoiceService {
     private UserService userService;
     @Autowired
     private PackingInformationRepository packingInformationRepository;
+    @Autowired
+    VNPayService vnpayService;
+    @Autowired
+    ActionHistoryService actionHistoryService;
 
     public ApiResponse getAll(InvoiceSearchRequest request){
         try {
@@ -121,13 +125,14 @@ public class InvoiceService {
             invoiceEntity.setUser(userEntity);
 
             //luu invoice
-            InvoiceEntity invoiceEntitySaved = invoiceRepository.save(invoiceEntity);
+            invoiceEntity = invoiceRepository.save(invoiceEntity);
 
             //kiem tra danh sach san pham co rong khong
             if(products.size() == 0){
                 return new ApiResponse(false, 400, null, "Product list is empty");
             }
 
+            double total = 0;
             //duyet qua tung san pham
             for (TicketTypeIdCarId product : products) {
                 int ticketTypeId = product.getTicketTypeId();
@@ -149,10 +154,6 @@ public class InvoiceService {
                 // kiem tra quyen
                 if(!userEntity.isAdmin()){
                     if(carEntity.getUser().getId() != userEntity.getId()){
-                        // rollback so luong slot da dat
-                        packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() - products.size());
-                        packingInformationRepository.save(packingInformation);
-
                         return new ApiResponse(false, 400, null, "You don't have permission to buy ticket for this carId " + carEntity.getCode());
                     }
                 }
@@ -161,17 +162,36 @@ public class InvoiceService {
                 InvoiceDetailEntity invoiceDetailEntity = new InvoiceDetailEntity();
 
                 //gan thong tin cho invoice detail
-                invoiceDetailEntity.setInvoiceId(invoiceEntitySaved.getId());
+                invoiceDetailEntity.setInvoiceId(invoiceEntity.getId());
                 invoiceDetailEntity.setCarId(carId);
                 invoiceDetailEntity.setTicketTypeId(ticketTypeId);
                 invoiceDetailEntity.setPrice(ticketTypeEntity.getPrice());
+                total += ticketTypeEntity.getPrice();
 
                 //luu invoice detail
                 invoiceDetailRepository.save(invoiceDetailEntity);
             }
 
+            invoiceEntity.setTotal(total);
+            invoiceEntity = invoiceRepository.save(invoiceEntity);
 
-            return new ApiResponse(true, 200, new Invoice(invoiceRepository.save(invoiceEntity)), "Invoice added successfully");
+            if(!userEntity.isAdmin()){
+                // thanh toan online thi luu slot truoc
+                packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() + products.size());
+                packingInformationRepository.save(packingInformation);
+
+                String url = vnpayService.createLink(invoiceEntity.getTotal(), invoiceEntity.getCode(), "http://localhost:8080/vnpay_return", invoiceEntity.getCode(), null);
+                ResponseAction responseAction = new ResponseAction();
+                responseAction.setUrl(url);
+                responseAction.setAction("pay-online");
+                return new ApiResponse(true, 200, responseAction, "Invoice added successfully");
+            }
+
+            ResponseAction responseAction = new ResponseAction();
+            responseAction.setAction("pay-offline");
+            responseAction.setUrl(null);
+
+            return new ApiResponse(true, 200, responseAction, "Invoice added successfully");
         } catch (Exception e){
             return new ApiResponse(false, 400, null, e.getMessage());
         }
@@ -196,13 +216,6 @@ public class InvoiceService {
             //kiem tra invoice da duoc active chua
             if(invoiceEntity.getStatus() == 1){
                 return new ApiResponse(false, 400, null, "Invoice already activated");
-            }
-
-            // kiem tra quyen
-            if(!currentUser.isAdmin()){
-                if(invoiceEntity.getUser().getId() != currentUser.getId()){
-                    return new ApiResponse(false, 400, null, "You don't have permission to activate this invoice");
-                }
             }
 
             //lay danh sach invoice detail
@@ -249,8 +262,8 @@ public class InvoiceService {
                 ticketEntity.setCar(carRepository.getOne(invoiceDetailEntity.getCarId()));
                 TicketTypeEntity ticketTypeEntity = ticketTypeRepository.getOne(invoiceDetailEntity.getTicketTypeId());
                 ticketEntity.setTicketType(ticketTypeEntity);
-                ticketEntity.setStartDate(new Timestamp(System.currentTimeMillis()));
-                ticketEntity.setEndDate(new Timestamp(System.currentTimeMillis() + ticketTypeEntity.getDuration() * 24 * 60 * 60 * 1000));
+                ticketEntity.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
+                ticketEntity.setEndDate(Timestamp.valueOf(LocalDateTime.now().plusDays(ticketTypeEntity.getDuration())));
                 ticketEntity.setInvoiceId(invoiceEntity.getId());
 
                 //cong tien vao tong tien invoice
@@ -284,5 +297,48 @@ public class InvoiceService {
         }
     }
 
+    public void activeOnlineByCode(String code, String errorCode){
+        InvoiceEntity invoice = invoiceRepository.findByCode(code);
+        if(invoice == null){
+            return ;
+        }
 
+        List<InvoiceDetailEntity> invoiceDetailEntityList = invoiceDetailRepository.findAllByInvoiceId(invoice.getId());
+
+        if(errorCode.equals("00")){
+            invoice.setStatus(1);
+
+            for (InvoiceDetailEntity invoiceDetailEntity : invoiceDetailEntityList) {
+                TicketEntity ticketEntity = new TicketEntity();
+                ticketEntity.setCar(carRepository.getOne(invoiceDetailEntity.getCarId()));
+                ticketEntity.setTicketType(ticketTypeRepository.getOne(invoiceDetailEntity.getTicketTypeId()));
+                ticketEntity.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
+                Timestamp startDate;
+                Timestamp endDate;
+                if(ticketEntity.getTicketType().getType().equals("hour")){
+                    startDate = invoice.getCreatedAt();
+                    endDate = Timestamp.valueOf(LocalDateTime.now());
+
+                    actionHistoryService.actionCarOut(ticketEntity.getCar().getId());
+                } else {
+                    startDate = Timestamp.valueOf(LocalDateTime.now());
+                    endDate = Timestamp.valueOf(LocalDateTime.now().plusDays(30));
+                }
+                ticketEntity.setStartDate(startDate);
+                ticketEntity.setEndDate(endDate);
+                ticketEntity.setInvoiceId(invoice.getId());
+                ticketRepository.save(ticketEntity);
+            }
+
+            invoiceRepository.save(invoice);
+        }
+        else {
+            if(invoice.getStatus() == 1){
+                return;
+            }
+            PackingInformation packingInformation = packingInformationRepository.findFirst();
+            packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() - invoiceDetailEntityList.size());
+            packingInformationRepository.save(packingInformation);
+        }
+    }
 }

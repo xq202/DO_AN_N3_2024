@@ -11,6 +11,7 @@ import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
 import com.n3.backend.entities.*;
 import com.n3.backend.utils.TimeUtil;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,9 +41,13 @@ public class ActionHistoryService {
     @Autowired
     private TicketRepository ticketRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    TicketTypeRepository ticketTypeRepository;
+    private TicketTypeRepository ticketTypeRepository;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+    @Autowired
+    private VNPayService vnpayService;
 
     public ApiResponse getAll(ActionHistorySearchRequest request){
         try{
@@ -160,12 +166,7 @@ public class ActionHistoryService {
             boolean isBooked = false;
 
             TicketEntity ticketOfCar;
-            if(ticketRepository.existsById(lastActionIN.getTicketId())){
-                ticketOfCar = ticketRepository.getOne(lastActionIN.getTicketId());
-            }
-            else {
-                ticketOfCar = ticketRepository.findFirstByCarIdAndEndDateAfter(car.getId(), new Timestamp(System.currentTimeMillis()));;
-            }
+            ticketOfCar = ticketRepository.findFirstByCarIdAndEndDateAfter(car.getId(), Timestamp.valueOf(LocalDateTime.now()));
 
             if(ticketOfCar != null && !ticketOfCar.getTicketType().getType().equals("hour")){
                 isBooked = true;
@@ -178,16 +179,6 @@ public class ActionHistoryService {
                     return new ApiResponse(false, 400, null, "No slot available");
                 }
 
-                // chua mua ve thang thi tao ve luot
-                if (!isBooked) {
-                    TicketEntity ticket = new TicketEntity();
-                    ticket.setCar(car);
-                    ticket.setTicketType(ticketTypeRepository.findFirstByType("hour"));
-                    ticket.setStartDate(new Timestamp(System.currentTimeMillis()));
-                    ticket.setInvoiceId(-1);
-                    ticketOfCar = ticketRepository.save(ticket);
-                }
-
                 if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() - 1);
                 else packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() - 1);
 
@@ -195,97 +186,109 @@ public class ActionHistoryService {
                 currentPacking.setCar(car);
                 currentPacking.setTicketType(ticketOfCar == null ? null : ticketOfCar.getTicketType());
                 currentPackingRepository.save(currentPacking);
+
+                ActionHistoryEntity actionHistoryEntity = new ActionHistoryEntity();
+
+                actionHistoryEntity.setCar(car);
+                actionHistoryEntity.setAction(request.getAction());
+                actionHistoryEntity.setTicketTypeId(ticketTypeRepository.findFirstByType("hour").getId());
+
+                actionHistoryEntity = repository.save(actionHistoryEntity);
+
+                packingInformationRepository.save(packingInformation);
+
+                infoWebSocketHandler.sendSlotInfo();
+
+                return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "success");
             }
             else {
+                // action out
+                ResponseAction responseAction = new ResponseAction();
                 // tinh tien
                 if(!isBooked){
                     System.out.println(lastActionIN.getCreatedAt());
-                    Timestamp timeOut = new Timestamp(System.currentTimeMillis());
+                    Timestamp timeOut = Timestamp.valueOf(LocalDateTime.now());
                     System.out.println(timeOut);
 
                     if(lastActionIN == null){
-                        return new ApiResponse(false, 400, null, "Last in is null");
+                        return new ApiResponse(false, 400, null, "Car not in parking");
                     }
 
                     double time = TimeUtil.minusTimestamp(lastActionIN.getCreatedAt(), timeOut);
                     System.out.println("time: " + time);
 
-                    price = time * ticketOfCar.getPrice();
+                    price = time * ticketTypeRepository.getOne(lastActionIN.getTicketTypeId()).getPrice();
                     System.out.println("price: " + price);
 
-                    TicketEntity ticket = ticketOfCar;
+                    InvoiceEntity invoiceEntity = new InvoiceEntity();
+                    invoiceEntity.setUser(car.getUser());
+                    if(price < 10000) price = 10000;
+                    invoiceEntity.setTotal(price);
+                    invoiceEntity.setCreatedAt(lastActionIN.getCreatedAt());
+                    invoiceRepository.save(invoiceEntity);
 
-                    if (ticket == null) {
-                        ticket = new TicketEntity();
-                        ticket.setCar(car);
-                        ticket.setTicketType(ticketTypeRepository.findFirstByType("hour"));
-                        ticket.setStartDate(lastActionIN.getCreatedAt());
-                    }
+                    String url = vnpayService.createLink(price, invoiceEntity.getCode(), "http://localhost:3000/home", invoiceEntity.getCode(), null);
 
-                    ticket.setEndDate(timeOut);
-                    ticket.setPrice(price);
-                    ticketOfCar = ticketRepository.save(ticket);
-
-//                    if(car.getUser().getBalance() < price){
-//                        return new ApiResponse(false, 400, null, "Not enough money");
-//                    }
-
-//                    car.getUser().setBalance(car.getUser().getBalance() - price);
-
-//                    userRepository.save(car.getUser());
+                    responseAction.setAction("PAY");
+                    responseAction.setUrl(url);
                 }
                 else {
                     if(ticketOfCar.getEndDate().getTime() < System.currentTimeMillis()){
-                        double time = TimeUtil.minusTimestamp(ticketOfCar.getEndDate(), new Timestamp(System.currentTimeMillis()));
+                        double time = TimeUtil.minusTimestamp(ticketOfCar.getEndDate(), Timestamp.valueOf(LocalDateTime.now()));
 
-                        price = time * ticketOfCar.getPrice();
+                        price = time * ticketTypeRepository.findFirstByType("hour").getPrice();
 
-                        TicketEntity ticket = new TicketEntity();
-                        ticket.setCar(car);
-                        ticket.setTicketType(ticketTypeRepository.findFirstByType("hour"));
-                        ticket.setStartDate(ticketOfCar.getEndDate());
-                        ticket.setEndDate(new Timestamp(System.currentTimeMillis()));
-                        ticket.setPrice(price);
-                        ticketRepository.save(ticket);
+                        InvoiceEntity invoiceEntity = new InvoiceEntity();
+                        invoiceEntity.setUser(car.getUser());
+                        if(price < 10000) price = 10000;
+                        invoiceEntity.setTotal(price);
+                        invoiceEntity.setCreatedAt(ticketOfCar.getEndDate());
+                        invoiceRepository.save(invoiceEntity);
+
+                        String url = vnpayService.createLink(price, invoiceEntity.getCode(), "http://localhost:3000/home", invoiceEntity.getCode(), null);
+
+                        responseAction.setAction("PAY");
+                        responseAction.setUrl(url);
                     }
                     else{
-                        ticketOfCar.setPrice(0);
-                        ticketRepository.save(ticketOfCar);
+                        // month ticket
+                        // open gate
+                        responseAction.setAction("OPEN");
+                        responseAction.setUrl(null);
+
+                        // neu la ve thang thi cap nhat slot, xoa current parking, gui socket
+                        packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + 1);
+
+                        packingInformationRepository.save(packingInformation);
+
+                        CurrentPacking currentPacking = currentPackingRepository.findByCarId(car.getId());
+
+                        currentPackingRepository.delete(currentPacking);
+
+                        infoWebSocketHandler.sendSlotInfo();
                     }
                 }
 
-                if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() + 1);
-                else packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + 1);
-
-                CurrentPacking currentPacking = currentPackingRepository.findByCarId(car.getId());
-
-                currentPackingRepository.delete(currentPacking);
+                return new ApiResponse(true, 200, responseAction, "success");
             }
-
-            ActionHistoryEntity actionHistoryEntity = new ActionHistoryEntity();
-
-            actionHistoryEntity.setCar(car);
-            actionHistoryEntity.setAction(request.getAction());
-            actionHistoryEntity.setTicketId(ticketOfCar == null ? -1 : ticketOfCar.getId());
-
-            repository.save(actionHistoryEntity);
-
-            packingInformationRepository.save(packingInformation);
-
-            infoWebSocketHandler.sendSlotInfo();
-
-
-            return new ApiResponse(true,
-                    200,
-                    new ActionHistoryOut(new Car(car),
-                            actionHistoryEntity.getAction(),
-                            DatetimeConvert.timastampToString(actionHistoryEntity.getCreatedAt()),
-                            price,
-                            ticketOfCar==null ? null : new Ticket(ticketOfCar)),
-                    "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());
         }
+    }
+
+    public void actionCarOut(int carId)
+    {
+        PackingInformation packingInformation = packingInformationRepository.findFirst();
+
+        packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() + 1);
+
+        packingInformationRepository.save(packingInformation);
+
+        CurrentPacking currentPacking = currentPackingRepository.findByCarId(carId);
+
+        currentPackingRepository.delete(currentPacking);
+
+        infoWebSocketHandler.sendSlotInfo();
     }
 }

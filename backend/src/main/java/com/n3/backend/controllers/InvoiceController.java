@@ -1,5 +1,6 @@
 package com.n3.backend.controllers;
 
+import com.n3.backend.dto.ActionHistory.ResponseAction;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
 import com.n3.backend.dto.Invoice.Invoice;
@@ -41,12 +42,12 @@ public class InvoiceController {
 //    }
 
     @PostMapping("")
-    public ApiResponse<Invoice> addNewInvoice(@RequestBody InvoiceRequest invoice){
+    public ApiResponse<ResponseAction> addNewInvoice(@RequestBody InvoiceRequest invoice){
         return invoiceService.addInvoice(invoice);
     }
 
     @GetMapping("{id}/active")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Invoice> activeInvoice(@PathVariable int id){
         return invoiceService.activeInvoice(id);
     }

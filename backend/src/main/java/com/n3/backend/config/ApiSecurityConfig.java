@@ -44,9 +44,12 @@ public class ApiSecurityConfig {
         http.csrf().disable()
                 .cors().configurationSource(corsFilter())
                 .and()
+//                .requiresChannel(
+//                        channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/vnpay/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest()

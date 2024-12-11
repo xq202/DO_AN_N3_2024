@@ -11,6 +11,13 @@ import com.n3.backend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Calendar;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -38,6 +45,6 @@ public class AuthController {
 
     @GetMapping("/test")
     public String test(){
-        return "test";
+        return Timestamp.valueOf(LocalDateTime.now().plusDays(30)).toString();
     }
 }

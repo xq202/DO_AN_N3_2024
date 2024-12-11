@@ -1,6 +1,7 @@
 package com.n3.backend.dto.ActionHistory;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class ActionHistoryOneCar {
     private String action = "";
@@ -9,7 +10,7 @@ public class ActionHistoryOneCar {
     private boolean reverse;
     private String sort = "id";
     String startDate = (new Timestamp(0)).toString();
-    String endDate = (new Timestamp(System.currentTimeMillis())).toString();
+    String endDate = (Timestamp.valueOf(LocalDateTime.now())).toString();
 
     public ActionHistoryOneCar(String action, int page, int size, boolean reverse, String sort, String startDate, String endDate) {
         this.action = action;

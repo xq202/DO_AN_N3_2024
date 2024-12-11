@@ -2,11 +2,12 @@ package com.n3.backend.dto.Ticket;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 public class TicketSearchURequest {
     private String code = "";
     private String startDate = (new Timestamp(0)).toString();
-    private String endDate = (new Timestamp(System.currentTimeMillis())).toString();
+    private String endDate = (Timestamp.valueOf(LocalDateTime.now())).toString();
     private int isExpired = -1;
     private int page = 1;
     private int size = 10;
