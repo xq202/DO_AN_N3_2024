@@ -37,8 +37,8 @@ public class BackendApplication {
                 packingInformation.setTotalSlotAvailable(100);
                 packingInformation.setTotalSlot(100);
                 packingInformation.setMaxSlotBooked(10);
-                packingInformation.setTotalSlotBooked(10);
-                packingInformation.setTotalSlotBookedAvailable(10);
+                packingInformation.setTotalSlotBooked(0);
+                packingInformation.setTotalSlotBookedAvailable(0);
 
                 repository.save(packingInformation);
             }
