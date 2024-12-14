@@ -12,6 +12,7 @@ public class Car {
     private String name;
     private String code;
     private User user;
+    private boolean isDeleted;
     private String createdAt;
     private String updatedAt;
 
@@ -20,6 +21,7 @@ public class Car {
         this.name = carEntity.getName();
         this.code = carEntity.getCode();
         this.user = new User(carEntity.getUser());
+        this.isDeleted = carEntity.isDeleted();
         this.createdAt = DatetimeConvert.timastampToString(carEntity.getCreatedAt());
         this.updatedAt = DatetimeConvert.timastampToString(carEntity.getUpdatedAt());
     }
@@ -57,6 +59,14 @@ public class Car {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public String getCode() {

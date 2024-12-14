@@ -43,7 +43,7 @@ public class CarController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Car> updateCar(@PathVariable("id") int id, @RequestBody CarRequest car){
         return carService.updateCar(id, car);
     }

@@ -29,7 +29,7 @@ public class ActionHistoryService {
     @Autowired
     private ActionHistoryRepository repository;
     @Autowired
-    private CarRepository carRepository;
+    private CarService carService;
     @Autowired
     private PackingInformationRepository packingInformationRepository;
     @Autowired
@@ -40,8 +40,6 @@ public class ActionHistoryService {
     private InfoWebSocketHandler infoWebSocketHandler;
     @Autowired
     private TicketRepository ticketRepository;
-    @Autowired
-    private UserRepository userRepository;
     @Autowired
     private TicketTypeRepository ticketTypeRepository;
     @Autowired
@@ -70,11 +68,12 @@ public class ActionHistoryService {
 
     public ApiResponse getByCar(int id, ActionHistoryOneCar request){
         try {
-            if(carRepository.existsById(id) == false){
+            CarEntity carEntity = carService.findById(id);
+
+            if(carEntity == null){
                 return new ApiResponse(false, 400, null, "Car not found");
             }
 
-            CarEntity carEntity = carRepository.findById(id).get();
             // kiem tra quyen
             UserEntity user = userService.getCurrentUser();
             if(!user.isAdmin()){
@@ -121,7 +120,7 @@ public class ActionHistoryService {
     public ApiResponse updateItem(int id, ActionHistoryRequest request){
         try {
             ActionHistoryEntity actionHistoryEntity = repository.getOne(id);
-            actionHistoryEntity.setCar(carRepository.findByCode(request.getCode()));
+            actionHistoryEntity.setCar(carService.findByCode(request.getCode()));
             actionHistoryEntity.setAction(request.getAction());
             repository.save(actionHistoryEntity);
             return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "update success");
@@ -146,7 +145,7 @@ public class ActionHistoryService {
             }
 
             // check car
-            CarEntity car = carRepository.findByCode(request.getCode());
+            CarEntity car = carService.findByCode(request.getCode());
             if(car == null){
                 return new ApiResponse(false, 400, null, "Car not found");
             }

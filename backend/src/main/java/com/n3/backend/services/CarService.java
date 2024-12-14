@@ -57,7 +57,7 @@ public class CarService {
 
             Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
 
-            Page data = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndUserId(request.getEmail(), request.getCode(), currentUser.getId(), pageable);
+            Page data = repository.searchByUserEmailContainingIgnoreCaseAndCodeContainingIgnoreCaseAndUserIdAndIsDeleted(request.getEmail(), request.getCode(), currentUser.getId(),false, pageable);
 
             List<CarEntity> list = data.stream().toList();
             int totalPage = data.getTotalPages();
@@ -72,8 +72,18 @@ public class CarService {
 
     public ApiResponse<Car> getOneById(int id){
         try {
-            Car car = new Car(repository.getOne(id));
-            return new ApiResponse<Car>(true, 200, car, "success");
+            CarEntity carEntity = repository.findById(id).orElse(null);
+            if (carEntity == null) {
+                return new ApiResponse<>(false, 400, null, "Car is not exist");
+            }
+            UserEntity currentUser = userService.getCurrentUser();
+            if(!currentUser.isAdmin()){
+                if(currentUser.getId() != carEntity.getUser().getId()){
+                    return new ApiResponse<>(false, 400, null, "You don't have permission to get car");
+                }
+            }
+
+            return new ApiResponse(true, 200, new Car(carEntity), "Success");
         }
         catch(Exception e){
             return new ApiResponse<>(false, 500, null, e.getMessage());
@@ -95,7 +105,7 @@ public class CarService {
                 }
             }
             //check car code is exist
-            if(repository.findByCode(car.getCode().trim() ) != null){
+            if(findByCode(car.getCode().trim() ) != null){
                 return new ApiResponse<>(false, 400, null, "Car is exist");
             }
 
@@ -120,7 +130,29 @@ public class CarService {
 
     public ApiResponse<Car> updateCar(int id, CarRequest car){
         try {
-            CarEntity carEntity = repository.getOne(id);
+            CarEntity carEntity = findById(id);
+
+            if(carEntity == null){
+                return new ApiResponse<>(false, 400, null, "Car is not exist");
+            }
+
+            if(carEntity.isDeleted()){
+                return new ApiResponse<>(false, 400, null, "Car is deleted");
+            }
+
+            UserEntity currentUser = userService.getCurrentUser();
+
+            if(!currentUser.isAdmin()){
+                if(car.getUserId() >= 0 && currentUser.getId() != carEntity.getUser().getId()){
+                    return new ApiResponse<>(false, 400, null, "You don't have permission to update car for other user");
+                }
+            }
+            else {
+                if(!userRepository.existsById(car.getUserId())){
+                    return new ApiResponse<>(false, 400, null, "User is not exist");
+                }
+            }
+
             carEntity.setName(car.getName());
             carEntity.setCode(car.getCode());
             repository.save(carEntity);
@@ -134,35 +166,26 @@ public class CarService {
 
     public ApiResponse deleteCar(int id){
         try {
-            CarEntity carEntity = repository.getOne(id);
-            repository.delete(carEntity);
+            UserEntity currentUser = userService.getCurrentUser();
+
+            CarEntity carEntity = findById(id);
+            if(carEntity == null){
+                return new ApiResponse(false, 400, null, "Car is not exist");
+            }
+
+            CurrentPacking currentPacking = currentPackingRepository.findByCarId(id);
+            if(currentPacking != null){
+                return new ApiResponse(false, 400, null, "Car is parking, can't delete");
+            }
+
+            if(!currentUser.isAdmin() && currentUser.getId() != carEntity.getUser().getId()){
+                return new ApiResponse(false, 400, null, "You don't have permission to delete car");
+            }
+
+            carEntity.setDeleted(true);
+            repository.save(carEntity);
 
             return new ApiResponse(true, 200, null, "success");
-        }
-        catch (Exception e){
-            return new ApiResponse(false, 500, null, e.getMessage());
-        }
-    }
-
-    public ApiResponse<List<Car>> searchCar(String name){
-        try {
-            List<CarEntity> list = repository.findByNameContaining(name);
-            return new ApiResponse(true, 200, Car.listCar(list), "success");
-        }
-        catch (Exception e){
-            return new ApiResponse(false, 500, null, e.getMessage());
-        }
-    }
-
-    public ApiResponse<List<Car>> searchCarByCode(CarSearchRequest request){
-        try {
-            Page data = repository.findByCodeContaining(request.getCode(), PageRequest.of(request.getPage() - 1, request.getSize(), Sort.by(request.isReverse() ? Sort.Direction.DESC : Sort.Direction.ASC, request.getSort())));
-
-            List<CarEntity> list = data.stream().toList();
-            int totalPage = data.getTotalPages();
-            int totalItem = (int) data.getTotalElements();
-
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, Car.listCar(list)), "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());
@@ -188,5 +211,17 @@ public class CarService {
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());
         }
+    }
+
+    public CarEntity findByCode(String code){
+        return repository.findByCodeAndIsDeleted(code, false);
+    }
+
+    public CarEntity findById(int id){
+        return repository.findByIdAndIsDeleted(id, false);
+    }
+
+    public CarEntity findOneByIdAll(int id){
+        return repository.findById(id).orElse(null);
     }
 }

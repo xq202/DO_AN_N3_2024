@@ -33,15 +33,24 @@ public class TicketService {
     @Autowired
     TicketTypeRepository ticketTypeRepository;
     @Autowired
-    CarRepository carRepository;
+    CarService carService;
     @Autowired
     UserService userService;
 
     public ApiResponse<Ticket> addNewTicket(TicketRequest request){
         try {
             TicketEntity ticketEntity = new TicketEntity();
-            ticketEntity.setCar(carRepository.findById(request.getCarId()).get());
+
+            ticketEntity.setCar(carService.findById(request.getCarId()));
+            if(ticketEntity.getCar() == null){
+                return new ApiResponse<>(false, 404, null, "Car not found");
+            }
+
             ticketEntity.setTicketType(ticketTypeRepository.getOne(request.getTicketTypeId()));
+            if (ticketEntity.getTicketType() == null){
+                return new ApiResponse<>(false, 404, null, "Ticket type not found");
+            }
+
             ticketEntity.setStartDate(DatetimeConvert.stringToTimestamp(request.getStartDate()));
             ticketEntity.setEndDate(DatetimeConvert.stringToTimestamp(request.getEndDate()));
 

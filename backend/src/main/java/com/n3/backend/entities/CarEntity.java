@@ -18,6 +18,7 @@ public class CarEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+    private boolean isDeleted = false;
     @CreationTimestamp
     private java.sql.Timestamp createdAt;
     @UpdateTimestamp
@@ -58,6 +59,14 @@ public class CarEntity {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 
     public Timestamp getCreatedAt() {

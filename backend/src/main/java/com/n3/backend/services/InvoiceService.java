@@ -30,17 +30,17 @@ public class InvoiceService {
     @Autowired
     private TicketTypeRepository ticketTypeRepository;
     @Autowired
-    private CarRepository carRepository;
-    @Autowired
     private TicketRepository ticketRepository;
     @Autowired
     private UserService userService;
     @Autowired
     private PackingInformationRepository packingInformationRepository;
     @Autowired
-    VNPayService vnpayService;
+    private VNPayService vnpayService;
     @Autowired
-    ActionHistoryService actionHistoryService;
+    private ActionHistoryService actionHistoryService;
+    @Autowired
+    private CarService carService;
 
     public ApiResponse getAll(InvoiceSearchRequest request){
         try {
@@ -146,10 +146,10 @@ public class InvoiceService {
 
 
                 //kiem tra car co ton tai khong
-                if(!carRepository.existsById(carId)){
+                CarEntity carEntity = carService.findById(carId);
+                if(carEntity == null){
                     return new ApiResponse(false, 400, null, "Car not found");
                 }
-                CarEntity carEntity = carRepository.getOne(carId);
 
                 // kiem tra quyen
                 if(!userEntity.isAdmin()){
@@ -260,7 +260,8 @@ public class InvoiceService {
                 //khoi tao ticket
                 TicketEntity ticketEntity = new TicketEntity();
                 //gan thong tin cho ticket
-                ticketEntity.setCar(carRepository.getOne(invoiceDetailEntity.getCarId()));
+                CarEntity car = carService.findOneByIdAll(invoiceDetailEntity.getCarId());
+                ticketEntity.setCar(car);
                 TicketTypeEntity ticketTypeEntity = ticketTypeRepository.getOne(invoiceDetailEntity.getTicketTypeId());
                 ticketEntity.setTicketType(ticketTypeEntity);
                 ticketEntity.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
@@ -311,7 +312,7 @@ public class InvoiceService {
 
             for (InvoiceDetailEntity invoiceDetailEntity : invoiceDetailEntityList) {
                 TicketEntity ticketEntity = new TicketEntity();
-                ticketEntity.setCar(carRepository.getOne(invoiceDetailEntity.getCarId()));
+                ticketEntity.setCar(carService.findOneByIdAll(invoiceDetailEntity.getCarId()));
                 ticketEntity.setTicketType(ticketTypeRepository.getOne(invoiceDetailEntity.getTicketTypeId()));
                 ticketEntity.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
                 Timestamp startDate;
