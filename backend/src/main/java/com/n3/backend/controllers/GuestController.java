@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GuestController {
     @Autowired
     TicketTypeService ticketTypeService;
-    @GetMapping("ticket-type")
+    @GetMapping("/ticket-type")
     public ApiResponse<TicketType> getTicketType(){
         return ticketTypeService.getAll();
     }
