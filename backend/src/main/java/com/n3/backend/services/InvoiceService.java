@@ -228,6 +228,7 @@ public class InvoiceService {
 
             // cap nhat so luong slot da dat
             packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() + invoiceEntities.size());
+            packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + invoiceEntities.size());
 
             //kiem tra invoice co ton tai khong
             if(!invoiceRepository.existsById(id)){

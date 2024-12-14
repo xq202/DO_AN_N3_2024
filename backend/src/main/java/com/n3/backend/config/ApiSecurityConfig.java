@@ -48,6 +48,7 @@ public class ApiSecurityConfig {
 //                        channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests()
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("guest/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/vnpay/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
