@@ -35,16 +35,15 @@ public class StatisticsService {
     }
 
     public ApiResponse incomeReport(){
-        Timestamp endDate = Timestamp.valueOf(LocalDateTime.now());
-        Timestamp startDate = Timestamp.valueOf(endDate.toLocalDateTime().minusMonths(6));
 
         List<TicketTypeEntity> ticketTypes = ticketTypeRepository.findAll();
 
         List<IncomeDto> result = new ArrayList<>();
 
+        int month = LocalDate.now().getMonthValue();
+
         for (TicketTypeEntity ticketType : ticketTypes) {
             List<Income> list = new ArrayList<>();
-            int month = LocalDate.now().getMonthValue();
 
             int total = 0;
             double totalIncome = 0;

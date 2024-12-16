@@ -178,6 +178,7 @@ public class InvoiceService {
             if(!userEntity.isAdmin()){
                 // thanh toan online thi luu slot truoc
                 packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() + products.size());
+                packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + products.size());
                 packingInformationRepository.save(packingInformation);
 
                 String url = vnpayService.createLink(invoiceEntity.getTotal(), invoiceEntity.getCode(), "http://localhost:8080/vnpay_return", invoiceEntity.getCode(), null);
@@ -307,8 +308,6 @@ public class InvoiceService {
 
         List<InvoiceDetailEntity> invoiceDetailEntityList = invoiceDetailRepository.findAllByInvoiceId(invoice.getId());
 
-        PackingInformation packingInformation = packingInformationRepository.findFirst();
-
         if(errorCode.equals("00")){
             invoice.setStatus(1);
 
@@ -338,13 +337,10 @@ public class InvoiceService {
                 invoiceDetailRepository.save(invoiceDetailEntity);
             }
 
-            packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() + invoiceDetailEntityList.size());
-            packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + invoiceDetailEntityList.size());
-            packingInformationRepository.save(packingInformation);
-
             invoiceRepository.save(invoice);
         }
         else {
+            PackingInformation packingInformation = packingInformationRepository.findFirst();
             packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() - invoiceDetailEntityList.size());
             packingInformationRepository.save(packingInformation);
         }
