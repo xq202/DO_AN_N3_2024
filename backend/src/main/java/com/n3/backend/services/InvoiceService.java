@@ -307,6 +307,8 @@ public class InvoiceService {
 
         List<InvoiceDetailEntity> invoiceDetailEntityList = invoiceDetailRepository.findAllByInvoiceId(invoice.getId());
 
+        PackingInformation packingInformation = packingInformationRepository.findFirst();
+
         if(errorCode.equals("00")){
             invoice.setStatus(1);
 
@@ -336,10 +338,13 @@ public class InvoiceService {
                 invoiceDetailRepository.save(invoiceDetailEntity);
             }
 
+            packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() + invoiceDetailEntityList.size());
+            packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + invoiceDetailEntityList.size());
+            packingInformationRepository.save(packingInformation);
+
             invoiceRepository.save(invoice);
         }
         else {
-            PackingInformation packingInformation = packingInformationRepository.findFirst();
             packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() - invoiceDetailEntityList.size());
             packingInformationRepository.save(packingInformation);
         }

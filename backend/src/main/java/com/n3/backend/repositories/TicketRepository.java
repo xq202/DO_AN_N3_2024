@@ -25,9 +25,12 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Integer> {
 
 //    Optional<TicketEntity> findAllByCarCodeContainsIgnoreCaseAndCarUserEmailContainsIgnoreCaseAndCreatedAtBetween(String carCode, String email, Timestamp startDate, Timestamp endDate);
 
-    @Query("select month(t.createdAt) as month, year(t.createdAt) as year, count(t.id) as total, sum(t.ticketType.price) as totalIncome from TicketEntity t where t.createdAt between ?1 and ?2 and  t.ticketType.id = ?3 group by year(t.createdAt), month(t.createdAt)")
+    @Query("select month(t.createdAt) as month, year(t.createdAt) as year, count(t.id) as total, sum(t.price) as totalIncome from TicketEntity t where t.createdAt between ?1 and ?2 and  t.ticketType.id = ?3 group by year(t.createdAt), month(t.createdAt)")
     Page<Income> reportTotalIncome(Timestamp startDate, Timestamp endDate, int ticketTypeId, org.springframework.data.domain.Pageable pageable);
 
     TicketEntity findFirstByCarIdAndEndDateAfter(int carId, Timestamp now);
     TicketEntity findOneByIdAndEndDateAfter(int id, Timestamp now);
+
+    @Query("select month(t.createdAt) as month, year(t.createdAt) as year, count(t.id) as total, sum(t.price) as totalIncome from TicketEntity t where month(t.createdAt) = ?1 and t.ticketType.id = ?2 group by year(t.createdAt), month(t.createdAt)")
+    Income reportIncomePerMonth(int month, int ticketTypeId);
 }

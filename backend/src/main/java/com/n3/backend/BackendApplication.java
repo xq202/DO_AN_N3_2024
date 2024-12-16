@@ -72,14 +72,14 @@ public class BackendApplication {
         };
     }
 
-//    @Bean
-//    public CommandLineRunner runNgrok(){
-//        return (args) -> {
-//            try {
-//                Runtime.getRuntime().exec("cmd /c start cmd.exe /K \".\\ngrok.exe  tunnel --authtoken 2fZeZ9aVgiPflyy0sxCbsRLKqnd_3xaRzvJKu4gZF8gvqv5Bt --label  edge=edghts_2hVWdGHqI5kTQTJRgyylSJjNr5t http://localhost:8080 \"");
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        };
-//    }
+    @Bean
+    public CommandLineRunner runNgrok(){
+        return (args) -> {
+            try {
+                Runtime.getRuntime().exec("cmd /c start cmd.exe /K \".\\ngrok.exe  tunnel --authtoken 2fZeZ9aVgiPflyy0sxCbsRLKqnd_3xaRzvJKu4gZF8gvqv5Bt --label  edge=edghts_2hVWdGHqI5kTQTJRgyylSJjNr5t http://localhost:8080 \"");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+    }
 }

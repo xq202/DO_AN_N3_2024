@@ -26,6 +26,7 @@ public class VNPayController {
     @GetMapping("/IPN")
     public VnpResponse IPN(HttpServletRequest request){
         try {
+            System.out.println("IPN");
             Map fields = new HashMap();
             for (Enumeration params = request.getParameterNames(); params.hasMoreElements(); ) {
                 String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());

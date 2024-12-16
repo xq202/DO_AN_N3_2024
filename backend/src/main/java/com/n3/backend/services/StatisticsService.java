@@ -43,14 +43,52 @@ public class StatisticsService {
         List<IncomeDto> result = new ArrayList<>();
 
         for (TicketTypeEntity ticketType : ticketTypes) {
-            List<Income> list = ticketRepository.reportTotalIncome(startDate, endDate, ticketType.getId(), PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "month"))).getContent();
+            List<Income> list = new ArrayList<>();
+            int month = LocalDate.now().getMonthValue();
 
             int total = 0;
             double totalIncome = 0;
 
-            for (Income income : list) {
-                total += income.getTotal();
+            int check = 0;
+            for (int i = 1; i <= 5; i++) {
+                Income income = ticketRepository.reportIncomePerMonth(month, ticketType.getId());
+                if (income == null) {
+                    int finalMonth = month;
+                    int finalCheck = check;
+                    income = new Income() {
+                        @Override
+                        public String getMonth() {
+                            return String.valueOf(finalMonth);
+                        }
+
+                        @Override
+                        public String getYear() {
+                            return String.valueOf(LocalDate.now().getYear() - finalCheck);
+                        }
+
+                        @Override
+                        public int getTotal() {
+                            return 0;
+                        }
+
+                        @Override
+                        public double getTotalIncome() {
+                            return 0;
+                        }
+                    };
+                }
+
+                month--;
+
+                if (month == 0) {
+                    month = 12;
+                    check++;
+                }
+
                 totalIncome += income.getTotalIncome();
+                total += income.getTotal();
+
+                list.add(income);
             }
 
             result.add(new IncomeDto(ticketType.getName(), total, totalIncome, list));
