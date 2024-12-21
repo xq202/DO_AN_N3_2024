@@ -1,5 +1,6 @@
 package com.n3.backend.services;
 
+import com.n3.backend.config.Constants;
 import com.n3.backend.dto.ActionHistory.ResponseAction;
 import com.n3.backend.dto.ApiResponse;
 import com.n3.backend.dto.DtoPage;
@@ -189,7 +190,7 @@ public class InvoiceService {
                 packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + products.size());
                 packingInformationRepository.save(packingInformation);
 
-                String url = vnpayService.createLink(invoiceEntity.getTotal(), invoiceEntity.getCode(), "http://localhost:8080/vnpay_return", invoiceEntity.getCode(), null);
+                String url = vnpayService.createLink(invoiceEntity.getTotal(), invoiceEntity.getCode(), Constants.FeUrl, invoiceEntity.getCode(), null);
                 ResponseAction responseAction = new ResponseAction();
                 responseAction.setUrl(url);
                 responseAction.setAction("pay-online");

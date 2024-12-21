@@ -1,5 +1,6 @@
 package com.n3.backend.services;
 
+import com.n3.backend.config.Constants;
 import com.n3.backend.dto.ActionHistory.*;
 import com.n3.backend.dto.Car.Car;
 import com.n3.backend.dto.Car.CarSearchRequest;
@@ -238,7 +239,7 @@ public class ActionHistoryService {
 
                     invoiceDetailRepository.save(invoiceDetailEntity);
 
-                    String url = vnpayService.createLink(price, invoiceEntity.getCode(), "http://localhost:3000/home", invoiceEntity.getCode(), null);
+                    String url = vnpayService.createLink(price, invoiceEntity.getCode(), Constants.FeUrl, invoiceEntity.getCode(), null);
 
                     responseAction.setAction("PAY");
                     responseAction.setUrl(url);
@@ -275,7 +276,7 @@ public class ActionHistoryService {
 
                         invoiceDetailRepository.save(invoiceDetailEntity);
 
-                        String url = vnpayService.createLink(price, invoiceEntity.getCode(), "http://localhost:3000/home", invoiceEntity.getCode(), null);
+                        String url = vnpayService.createLink(price, invoiceEntity.getCode(), Constants.FeUrl, invoiceEntity.getCode(), null);
 
                         responseAction.setAction("PAY");
                         responseAction.setUrl(url);
