@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -243,7 +244,7 @@ public class ActionHistoryService {
                     responseAction.setUrl(url);
                 }
                 else {
-                    if(currentPacking.getTicket().getEndDate().getTime() < System.currentTimeMillis()){
+                    if(currentPacking.getTicket().getEndDate().getTime() < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)){
                         double time = TimeUtil.minusTimestamp(currentPacking.getTicket().getEndDate(), Timestamp.valueOf(LocalDateTime.now()));
 
                         TicketTypeEntity ticketType = ticketTypeRepository.findFirstByType("hour");

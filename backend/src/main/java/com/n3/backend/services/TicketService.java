@@ -22,6 +22,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -141,7 +142,7 @@ public class TicketService {
             List<Ticket> ticketList;
 
             if(request.getIsExpired() > 0){
-                Page data = ticketRepository.findByInvoiceDetailCarCodeContainingIgnoreCaseAndEndDateAfterAndCreatedAtBetweenAndInvoiceDetailCarUserId(request.getCode(), new Timestamp(System.currentTimeMillis()), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
+                Page data = ticketRepository.findByInvoiceDetailCarCodeContainingIgnoreCaseAndEndDateAfterAndCreatedAtBetweenAndInvoiceDetailCarUserId(request.getCode(), Timestamp.valueOf(LocalDateTime.now()), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
                 tickets = data.stream().toList();
                 totalPage = data.getTotalPages();
                 totalItem = (int) data.getTotalElements();
