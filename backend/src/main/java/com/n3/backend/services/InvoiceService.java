@@ -194,7 +194,7 @@ public class InvoiceService {
 
             return new ApiResponse(true, 200, responseAction, "Invoice added successfully");
         } catch (Exception e){
-            return new ApiResponse(false, 400, null, e.getMessage());
+            return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
 
