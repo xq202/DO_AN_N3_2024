@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -133,6 +134,7 @@ public class InvoiceService {
             }
 
             double total = 0;
+            List<InvoiceDetailEntity> list = new ArrayList<>();
             //duyet qua tung san pham
             for (TicketTypeIdCarId product : products) {
                 int ticketTypeId = product.getTicketTypeId();
@@ -143,6 +145,10 @@ public class InvoiceService {
                     return new ApiResponse(false, 400, null, "Ticket type not found");
                 }
                 TicketTypeEntity ticketTypeEntity = ticketTypeRepository.getOne(ticketTypeId);
+
+                if(ticketTypeEntity.getType().equals("hour")){
+                    return new ApiResponse(false, 400, null, "Ticket type not is hour when buy ticket");
+                }
 
 
                 //kiem tra car co ton tai khong
@@ -168,9 +174,11 @@ public class InvoiceService {
                 invoiceDetailEntity.setPrice(ticketTypeEntity.getPrice());
                 total += ticketTypeEntity.getPrice();
 
-                //luu invoice detail
-                invoiceDetailRepository.save(invoiceDetailEntity);
+                //luu lai invoice detail
+                list.add(invoiceDetailEntity);
             }
+
+            invoiceDetailRepository.saveAll(list);
 
             invoiceEntity.setTotal(total);
             invoiceEntity = invoiceRepository.save(invoiceEntity);
