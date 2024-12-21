@@ -40,9 +40,10 @@ public class StatisticsService {
 
         List<IncomeDto> result = new ArrayList<>();
 
-        int month = LocalDate.now().getMonthValue();
+        int months = LocalDate.now().getMonthValue();
 
         for (TicketTypeEntity ticketType : ticketTypes) {
+            int month = months;
             List<Income> list = new ArrayList<>();
 
             int total = 0;
