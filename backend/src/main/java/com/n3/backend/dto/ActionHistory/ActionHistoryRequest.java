@@ -1,25 +1,15 @@
 package com.n3.backend.dto.ActionHistory;
 
 public class ActionHistoryRequest {
-    private int id;
     private String code;
     private String action;
 
     public ActionHistoryRequest() {
     }
 
-    public ActionHistoryRequest(int id, String code, String action) {
-        this.id = id;
+    public ActionHistoryRequest(String code, String action) {
         this.code = code;
         this.action = action;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getCode() {

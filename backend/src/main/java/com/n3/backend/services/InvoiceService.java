@@ -163,8 +163,8 @@ public class InvoiceService {
 
                 //gan thong tin cho invoice detail
                 invoiceDetailEntity.setInvoiceId(invoiceEntity.getId());
-                invoiceDetailEntity.setCarId(carId);
-                invoiceDetailEntity.setTicketTypeId(ticketTypeId);
+                invoiceDetailEntity.setCar(carEntity);
+                invoiceDetailEntity.setTicketType(ticketTypeEntity);
                 invoiceDetailEntity.setPrice(ticketTypeEntity.getPrice());
                 total += ticketTypeEntity.getPrice();
 
@@ -245,9 +245,9 @@ public class InvoiceService {
             //khoi tao tong tien invoice
             double total = 0;
             //tinh tong tien invoice
-            for (InvoiceDetailEntity invoiceDetailEntity : invoiceEntities) {
-                total += invoiceDetailEntity.getPrice();
-            }
+//            for (InvoiceDetailEntity invoiceDetailEntity : invoiceEntities) {
+//                total += invoiceDetailEntity.getPrice();
+//            }
             //kiem tra so du co du de thanh toan khong
 //            if(balance < total){
 //                return new ApiResponse(false, 400, null, "Not enough balance");
@@ -261,23 +261,14 @@ public class InvoiceService {
                 //khoi tao ticket
                 TicketEntity ticketEntity = new TicketEntity();
                 //gan thong tin cho ticket
-                CarEntity car = carService.findOneByIdAll(invoiceDetailEntity.getCarId());
-                ticketEntity.setCar(car);
-                TicketTypeEntity ticketTypeEntity = ticketTypeRepository.getOne(invoiceDetailEntity.getTicketTypeId());
-                ticketEntity.setTicketType(ticketTypeEntity);
+                ticketEntity.setInvoiceDetail(invoiceDetailEntity);
                 ticketEntity.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
-                ticketEntity.setEndDate(Timestamp.valueOf(LocalDateTime.now().plusDays(ticketTypeEntity.getDuration())));
-                ticketEntity.setInvoiceId(invoiceEntity.getId());
+                ticketEntity.setEndDate(Timestamp.valueOf(LocalDateTime.now().plusDays(invoiceDetailEntity.getTicketType().getDuration())));
 
                 //cong tien vao tong tien invoice
                 total += invoiceDetailEntity.getPrice();
                 //luu lai ticket
-                TicketEntity ticketSaved =  ticketRepository.save(ticketEntity);
-                //gan ticket id cho invoice detail
-                invoiceDetailEntity.setTicketId(ticketSaved.getId());
-
-                //luu lai invoice detail voi ticket id
-                invoiceDetailRepository.save(invoiceDetailEntity);
+                ticketRepository.save(ticketEntity);
             }
             //active invoice
             invoiceEntity.setStatus(1);
@@ -313,28 +304,21 @@ public class InvoiceService {
 
             for (InvoiceDetailEntity invoiceDetailEntity : invoiceDetailEntityList) {
                 TicketEntity ticketEntity = new TicketEntity();
-                ticketEntity.setCar(carService.findOneByIdAll(invoiceDetailEntity.getCarId()));
-                ticketEntity.setTicketType(ticketTypeRepository.getOne(invoiceDetailEntity.getTicketTypeId()));
-                ticketEntity.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
+                ticketEntity.setInvoiceDetail(invoiceDetailEntity);
                 Timestamp startDate;
                 Timestamp endDate;
-                if(ticketEntity.getTicketType().getType().equals("hour")){
+                if(ticketEntity.getInvoiceDetail().getTicketType().getType().equals("hour")){
                     startDate = invoice.getCreatedAt();
                     endDate = Timestamp.valueOf(LocalDateTime.now());
 
-                    actionHistoryService.actionCarOut(ticketEntity.getCar().getId());
+                    actionHistoryService.actionCarOut(ticketEntity.getInvoiceDetail().getCar().getId());
                 } else {
                     startDate = Timestamp.valueOf(LocalDateTime.now());
                     endDate = Timestamp.valueOf(LocalDateTime.now().plusDays(30));
                 }
                 ticketEntity.setStartDate(startDate);
                 ticketEntity.setEndDate(endDate);
-                ticketEntity.setInvoiceId(invoice.getId());
-                ticketEntity.setPrice(invoiceDetailEntity.getPrice());
-                ticketEntity = ticketRepository.save(ticketEntity);
-
-                invoiceDetailEntity.setTicketId(ticketEntity.getId());
-                invoiceDetailRepository.save(invoiceDetailEntity);
+                ticketRepository.save(ticketEntity);
             }
 
             invoiceRepository.save(invoice);

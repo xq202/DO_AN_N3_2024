@@ -22,10 +22,10 @@ public class Ticket {
     public Ticket(TicketEntity ticketEntity) {
         if(ticketEntity == null) return;
         this.id = ticketEntity.getId();
-        this.name = ticketEntity.getTicketType().getName();
-        this.car = new Car(ticketEntity.getCar());
-        this.ticketType = new TicketType(ticketEntity.getTicketType());
-        this.price = ticketEntity.getPrice();
+        this.name = ticketEntity.getInvoiceDetail().getTicketType().getName();
+        this.car = new Car(ticketEntity.getInvoiceDetail().getCar());
+        this.ticketType = new TicketType(ticketEntity.getInvoiceDetail().getTicketType());
+        this.price = ticketEntity.getInvoiceDetail().getPrice();
         this.startDate = DatetimeConvert.timastampToString(ticketEntity.getStartDate());
         this.endDate = DatetimeConvert.timastampToString(ticketEntity.getEndDate());
         this.createdAt = DatetimeConvert.timastampToString(ticketEntity.getCreatedAt());

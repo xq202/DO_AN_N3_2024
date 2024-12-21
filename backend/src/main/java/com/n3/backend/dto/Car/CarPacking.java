@@ -1,7 +1,9 @@
 package com.n3.backend.dto.Car;
 
+import com.n3.backend.dto.Ticket.Ticket;
 import com.n3.backend.dto.TicketType.TicketType;
 import com.n3.backend.entities.CurrentPacking;
+import com.n3.backend.entities.TicketEntity;
 import com.n3.backend.entities.TicketTypeEntity;
 import com.n3.backend.utils.DatetimeConvert;
 
@@ -9,12 +11,12 @@ import java.util.List;
 
 public class CarPacking {
     private Car car;
-    private TicketType ticketType;
+    private Ticket ticket;
     private String createdAt;
 
-    public CarPacking(Car car, TicketTypeEntity ticketType, String createdAt) {
+    public CarPacking(Car car, TicketEntity ticket, String createdAt) {
         this.car = car;
-        this.ticketType = new TicketType(ticketType);
+        this.ticket = new Ticket(ticket);
         this.createdAt = createdAt;
     }
 
@@ -23,7 +25,7 @@ public class CarPacking {
                 currentPacking ->
                         new CarPacking(
                                 new Car(currentPacking.getCar()),
-                                currentPacking.getTicketType(),
+                                currentPacking.getTicket(),
                                 DatetimeConvert.timastampToString(currentPacking.getCreatedAt()))).toList();
         return list;
     }
@@ -36,12 +38,12 @@ public class CarPacking {
         this.car = car;
     }
 
-    public TicketType getTicketType() {
-        return ticketType;
+    public Ticket getTicket() {
+        return ticket;
     }
 
-    public void setTicketType(TicketType ticketType) {
-        this.ticketType = ticketType;
+    public void setTicket(Ticket ticket) {
+        this.ticket = ticket;
     }
 
     public String getCreatedAt() {

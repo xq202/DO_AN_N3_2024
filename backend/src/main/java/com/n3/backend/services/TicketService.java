@@ -37,29 +37,29 @@ public class TicketService {
     @Autowired
     UserService userService;
 
-    public ApiResponse<Ticket> addNewTicket(TicketRequest request){
-        try {
-            TicketEntity ticketEntity = new TicketEntity();
-
-            ticketEntity.setCar(carService.findById(request.getCarId()));
-            if(ticketEntity.getCar() == null){
-                return new ApiResponse<>(false, 404, null, "Car not found");
-            }
-
-            ticketEntity.setTicketType(ticketTypeRepository.getOne(request.getTicketTypeId()));
-            if (ticketEntity.getTicketType() == null){
-                return new ApiResponse<>(false, 404, null, "Ticket type not found");
-            }
-
-            ticketEntity.setStartDate(DatetimeConvert.stringToTimestamp(request.getStartDate()));
-            ticketEntity.setEndDate(DatetimeConvert.stringToTimestamp(request.getEndDate()));
-
-            return new ApiResponse<>(true, 200, new Ticket(ticketRepository.save(ticketEntity)), "Ticket added successfully");
-        }
-        catch (Exception e){
-            return new ApiResponse<>(false, 400, null, e.getMessage());
-        }
-    }
+//    public ApiResponse<Ticket> addNewTicket(TicketRequest request){
+//        try {
+//            TicketEntity ticketEntity = new TicketEntity();
+//
+//            ticketEntity.setCar(carService.findById(request.getCarId()));
+//            if(ticketEntity.getCar() == null){
+//                return new ApiResponse<>(false, 404, null, "Car not found");
+//            }
+//
+//            ticketEntity.setTicketType(ticketTypeRepository.getOne(request.getTicketTypeId()));
+//            if (ticketEntity.getTicketType() == null){
+//                return new ApiResponse<>(false, 404, null, "Ticket type not found");
+//            }
+//
+//            ticketEntity.setStartDate(DatetimeConvert.stringToTimestamp(request.getStartDate()));
+//            ticketEntity.setEndDate(DatetimeConvert.stringToTimestamp(request.getEndDate()));
+//
+//            return new ApiResponse<>(true, 200, new Ticket(ticketRepository.save(ticketEntity)), "Ticket added successfully");
+//        }
+//        catch (Exception e){
+//            return new ApiResponse<>(false, 400, null, e.getMessage());
+//        }
+//    }
 
     public ApiResponse<Ticket> getTicketById(int id){
         try {
@@ -69,7 +69,7 @@ public class TicketService {
 
             TicketEntity ticketEntity = ticketRepository.findById(id).get();
 
-            if(ticketEntity.getCar().getUser().getId() != userService.getCurrentUser().getId() && !userService.getCurrentUser().isAdmin()){
+            if(ticketEntity.getInvoiceDetail().getCar().getUser().getId() != userService.getCurrentUser().getId() && !userService.getCurrentUser().isAdmin()){
                 return new ApiResponse<>(false, 403, null, "You don't have permission to access this ticket");
             }
 
@@ -81,20 +81,20 @@ public class TicketService {
         }
     }
 
-    public ApiResponse<Ticket> updateTicket(int id, TicketRequest request){
-        try {
-            TicketEntity ticketEntity = ticketRepository.findById(id).get();
-            ticketEntity.setCar(new CarEntity(request.getCarId()));
-            ticketEntity.setTicketType(new TicketTypeEntity(request.getTicketTypeId()));
-            ticketEntity.setStartDate(DatetimeConvert.stringToTimestamp(request.getStartDate()));
-            ticketEntity.setEndDate(DatetimeConvert.stringToTimestamp(request.getEndDate()));
-            ticketRepository.save(ticketEntity);
-            return new ApiResponse<>(true, 200, new Ticket(ticketEntity), "Ticket updated successfully");
-        }
-        catch (Exception e){
-            return new ApiResponse<>(false, 400, null, e.getMessage());
-        }
-    }
+//    public ApiResponse<Ticket> updateTicket(int id, TicketRequest request){
+//        try {
+//            TicketEntity ticketEntity = ticketRepository.findById(id).get();
+//            ticketEntity.setCar(new CarEntity(request.getCarId()));
+//            ticketEntity.setTicketType(new TicketTypeEntity(request.getTicketTypeId()));
+//            ticketEntity.setStartDate(DatetimeConvert.stringToTimestamp(request.getStartDate()));
+//            ticketEntity.setEndDate(DatetimeConvert.stringToTimestamp(request.getEndDate()));
+//            ticketRepository.save(ticketEntity);
+//            return new ApiResponse<>(true, 200, new Ticket(ticketEntity), "Ticket updated successfully");
+//        }
+//        catch (Exception e){
+//            return new ApiResponse<>(false, 400, null, e.getMessage());
+//        }
+//    }
 
     public ApiResponse<Ticket> deleteTicket(int id){
         try {
@@ -141,14 +141,14 @@ public class TicketService {
             List<Ticket> ticketList;
 
             if(request.getIsExpired() > 0){
-                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndEndDateAfterAndCreatedAtBetweenAndCarUserId(request.getCode(), new Timestamp(System.currentTimeMillis()), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
+                Page data = ticketRepository.findByInvoiceDetailCarCodeContainingIgnoreCaseAndEndDateAfterAndCreatedAtBetweenAndInvoiceDetailCarUserId(request.getCode(), new Timestamp(System.currentTimeMillis()), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
                 tickets = data.stream().toList();
                 totalPage = data.getTotalPages();
                 totalItem = (int) data.getTotalElements();
                 ticketList = Ticket.getTickets(tickets);
             }
             else{
-                Page data = ticketRepository.findByCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndCarUserId(request.getCode(), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
+                Page data = ticketRepository.findByInvoiceDetailCarCodeContainingIgnoreCaseAndCreatedAtBetweenAndInvoiceDetailCarUserId(request.getCode(), DatetimeConvert.stringToTimestamp(request.getStartDate()), DatetimeConvert.stringToTimestamp(request.getEndDate()), currentUser.getId(), pageable);
                 tickets = data.stream().toList();
                 totalPage = data.getTotalPages();
                 totalItem = (int) data.getTotalElements();

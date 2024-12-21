@@ -151,6 +151,8 @@ public class ActionHistoryService {
             }
 
             // check car is in parking
+            CurrentPacking currentPacking = currentPackingRepository.findByCarId(car.getId());
+
             if(request.getAction().equals("IN")){
                 if(currentPackingRepository.existsByCarId(car.getId())){
                     return new ApiResponse(false, 400, null, "Car is in parking");
@@ -162,14 +164,9 @@ public class ActionHistoryService {
                 }
             }
 
-            ActionHistoryEntity lastActionIN = repository.findTopByActionAndCarIdOrderByCreatedAtDesc("IN", car.getId());
-
             boolean isBooked = false;
 
-            TicketEntity ticketOfCar;
-            ticketOfCar = ticketRepository.findFirstByCarIdAndEndDateAfter(car.getId(), Timestamp.valueOf(LocalDateTime.now()));
-
-            if(ticketOfCar != null && !ticketOfCar.getTicketType().getType().equals("hour")){
+            if(currentPacking.getTicket() != null){
                 isBooked = true;
             }
 
@@ -183,16 +180,16 @@ public class ActionHistoryService {
                 if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() - 1);
                 else packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() - 1);
 
-                CurrentPacking currentPacking = new CurrentPacking();
+                TicketEntity ticket = ticketRepository.findFirstByInvoiceDetailCarIdAndEndDateAfter(car.getId(), Timestamp.valueOf(LocalDateTime.now()));
+
                 currentPacking.setCar(car);
-                currentPacking.setTicketType(ticketOfCar == null ? null : ticketOfCar.getTicketType());
+                currentPacking.setTicket(ticket);
                 currentPackingRepository.save(currentPacking);
 
                 ActionHistoryEntity actionHistoryEntity = new ActionHistoryEntity();
 
                 actionHistoryEntity.setCar(car);
                 actionHistoryEntity.setAction(request.getAction());
-                actionHistoryEntity.setTicketTypeId(ticketTypeRepository.findFirstByType("hour").getId());
 
                 actionHistoryEntity = repository.save(actionHistoryEntity);
 
@@ -207,32 +204,36 @@ public class ActionHistoryService {
                 ResponseAction responseAction = new ResponseAction();
                 // tinh tien
                 if(!isBooked){
-                    System.out.println(lastActionIN.getCreatedAt());
                     Timestamp timeOut = Timestamp.valueOf(LocalDateTime.now());
-                    System.out.println(timeOut);
 
-                    if(lastActionIN == null){
+                    if(currentPacking == null){
                         return new ApiResponse(false, 400, null, "Car not in parking");
                     }
 
-                    double time = TimeUtil.minusTimestamp(lastActionIN.getCreatedAt(), timeOut);
+                    double time = TimeUtil.minusTimestamp(currentPacking.getCreatedAt(), timeOut);
                     System.out.println("time: " + time);
 
-                    price = time * ticketTypeRepository.getOne(lastActionIN.getTicketTypeId()).getPrice();
+                    TicketTypeEntity ticketType = ticketTypeRepository.findFirstByType("hour");
+                    price = time * ticketType.getPrice();
                     System.out.println("price: " + price);
 
                     InvoiceEntity invoiceEntity = new InvoiceEntity();
+
                     invoiceEntity.setUser(car.getUser());
+
                     if(price < 10000) price = 10000;
+
                     invoiceEntity.setTotal(price);
-                    invoiceEntity.setCreatedAt(lastActionIN.getCreatedAt());
+
+                    invoiceEntity.setCreatedAt(currentPacking.getCreatedAt());
+
                     invoiceEntity = invoiceRepository.save(invoiceEntity);
 
                     InvoiceDetailEntity invoiceDetailEntity = new InvoiceDetailEntity();
                     invoiceDetailEntity.setInvoiceId(invoiceEntity.getId());
-                    invoiceDetailEntity.setCarId(car.getId());
+                    invoiceDetailEntity.setCar(car);
                     invoiceDetailEntity.setPrice(price);
-                    invoiceDetailEntity.setTicketTypeId(lastActionIN.getTicketTypeId());
+                    invoiceDetailEntity.setTicketType(ticketType);
 
                     invoiceDetailRepository.save(invoiceDetailEntity);
 
@@ -242,24 +243,35 @@ public class ActionHistoryService {
                     responseAction.setUrl(url);
                 }
                 else {
-                    if(ticketOfCar.getEndDate().getTime() < System.currentTimeMillis()){
-                        double time = TimeUtil.minusTimestamp(ticketOfCar.getEndDate(), Timestamp.valueOf(LocalDateTime.now()));
+                    if(currentPacking.getTicket().getEndDate().getTime() < System.currentTimeMillis()){
+                        double time = TimeUtil.minusTimestamp(currentPacking.getTicket().getEndDate(), Timestamp.valueOf(LocalDateTime.now()));
 
                         TicketTypeEntity ticketType = ticketTypeRepository.findFirstByType("hour");
+
                         price = time * ticketType.getPrice();
 
                         InvoiceEntity invoiceEntity = new InvoiceEntity();
+
                         invoiceEntity.setUser(car.getUser());
+
                         if(price < 10000) price = 10000;
+
                         invoiceEntity.setTotal(price);
-                        invoiceEntity.setCreatedAt(ticketOfCar.getEndDate());
+
+                        invoiceEntity.setCreatedAt(currentPacking.getTicket().getEndDate());
+
                         invoiceRepository.save(invoiceEntity);
 
                         InvoiceDetailEntity invoiceDetailEntity = new InvoiceDetailEntity();
+
                         invoiceDetailEntity.setInvoiceId(invoiceEntity.getId());
-                        invoiceDetailEntity.setCarId(car.getId());
+
+                        invoiceDetailEntity.setCar(car);
+
                         invoiceDetailEntity.setPrice(price);
-                        invoiceDetailEntity.setTicketTypeId(ticketType.getId());
+
+                        invoiceDetailEntity.setTicketType(ticketType);
+
                         invoiceDetailRepository.save(invoiceDetailEntity);
 
                         String url = vnpayService.createLink(price, invoiceEntity.getCode(), "http://localhost:3000/home", invoiceEntity.getCode(), null);
@@ -278,7 +290,7 @@ public class ActionHistoryService {
 
                         packingInformationRepository.save(packingInformation);
 
-                        CurrentPacking currentPacking = currentPackingRepository.findByCarId(car.getId());
+                        currentPacking = currentPackingRepository.findByCarId(car.getId());
 
                         currentPackingRepository.delete(currentPacking);
 

@@ -8,11 +8,14 @@ public class InvoiceDetailEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    private int ticketId;
     private int invoiceId;
     private double price;
-    private int carId;
-    private int ticketTypeId;
+    @ManyToOne
+    @JoinColumn(name = "car_id", nullable = false)
+    private CarEntity car;
+    @ManyToOne
+    @JoinColumn(name = "ticket_type_id", nullable = false)
+    private TicketTypeEntity ticketType;
 
     public int getId() {
         return id;
@@ -20,14 +23,6 @@ public class InvoiceDetailEntity {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getTicketId() {
-        return ticketId;
-    }
-
-    public void setTicketId(int ticketId) {
-        this.ticketId = ticketId;
     }
 
     public int getInvoiceId() {
@@ -46,19 +41,19 @@ public class InvoiceDetailEntity {
         this.price = price;
     }
 
-    public int getCarId() {
-        return carId;
+    public CarEntity getCar() {
+        return car;
     }
 
-    public void setCarId(int carId) {
-        this.carId = carId;
+    public void setCar(CarEntity car) {
+        this.car = car;
     }
 
-    public int getTicketTypeId() {
-        return ticketTypeId;
+    public TicketTypeEntity getTicketType() {
+        return ticketType;
     }
 
-    public void setTicketTypeId(int ticketTypeId) {
-        this.ticketTypeId = ticketTypeId;
+    public void setTicketType(TicketTypeEntity ticketType) {
+        this.ticketType = ticketType;
     }
 }

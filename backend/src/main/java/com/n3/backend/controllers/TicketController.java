@@ -30,17 +30,17 @@ public class TicketController {
         return ticketService.getAllTickets(request);
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Ticket> update(@PathVariable("id") int id, @ModelAttribute TicketRequest request){
-        return ticketService.updateTicket(id, request);
-    }
+//    @PutMapping("/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public ApiResponse<Ticket> update(@PathVariable("id") int id, @ModelAttribute TicketRequest request){
+//        return ticketService.updateTicket(id, request);
+//    }
 
-    @PostMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Ticket> addNew(@RequestBody TicketRequest request) throws SQLException {
-        return ticketService.addNewTicket(request);
-    }
+//    @PostMapping("")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public ApiResponse<Ticket> addNew(@RequestBody TicketRequest request) throws SQLException {
+//        return ticketService.addNewTicket(request);
+//    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
