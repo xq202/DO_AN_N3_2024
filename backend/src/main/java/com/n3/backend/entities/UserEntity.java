@@ -10,8 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.sql.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

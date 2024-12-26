@@ -21,7 +21,7 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Integer> {
     Page<TicketEntity> findByInvoiceDetailCarCodeContainingIgnoreCaseAndEndDateAfterAndCreatedAtBetweenAndInvoiceDetailCarUserId(String carCode, Timestamp now, Timestamp startDate, Timestamp endDate, int userId, Pageable pageable);
 
     @Query("SELECT t FROM TicketEntity t WHERE t.invoiceDetail.car.code like concat('%', ?1, '%') AND t.invoiceDetail.car.user.email like concat('%', ?2, '%') AND (t.invoiceDetail.ticketType.id = ?3 OR ?3 = 0) AND t.createdAt between ?4 and ?5 and ((?6 = 1 and t.endDate < now()) or (?6 = 0 and t.endDate >= now()) or ?6 = -1)")
-    Page<TicketEntity> search(String carCode, String email, int ticketTypeId, Date startDate, Date endDate, int isExpired, Pageable pageable);
+    Page<TicketEntity> search(String carCode, String email, int ticketTypeId, Timestamp startDate, Timestamp endDate, int isExpired, Pageable pageable);
 
 //    Optional<TicketEntity> findAllByCarCodeContainsIgnoreCaseAndCarUserEmailContainsIgnoreCaseAndCreatedAtBetween(String carCode, String email, Timestamp startDate, Timestamp endDate);
 

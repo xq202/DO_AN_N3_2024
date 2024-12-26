@@ -26,7 +26,11 @@ public class InfoWebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         if(message.getPayload().equals("getInfo")) {
             SlotInfo slotInfo = packingInformationService.getSlotInfo();
-            broadcastMessage(slotInfo);
+
+            Gson gson = new Gson();
+            String json = gson.toJson(slotInfo);
+
+            session.sendMessage(new TextMessage(json));
         }
     }
 
