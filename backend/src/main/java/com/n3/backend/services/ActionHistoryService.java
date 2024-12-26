@@ -168,21 +168,18 @@ public class ActionHistoryService {
 
             boolean isBooked = false;
 
-            if(currentPacking != null && currentPacking.getTicket() != null){
-                isBooked = true;
-            }
-
             double price = 0;
 
             if(request.getAction().equals("IN")){
+                TicketEntity ticket = ticketRepository.findFirstByInvoiceDetailCarIdAndEndDateAfter(car.getId(), Timestamp.valueOf(LocalDateTime.now()));
+                isBooked = ticket != null;
+
                 if((isBooked ? packingInformation.getTotalSlotBookedAvailable() : packingInformation.getTotalSlotAvailable()) <= 0){
                     return new ApiResponse(false, 400, null, "No slot available");
                 }
 
                 if(!isBooked) packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() - 1);
                 else packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() - 1);
-
-                TicketEntity ticket = ticketRepository.findFirstByInvoiceDetailCarIdAndEndDateAfter(car.getId(), Timestamp.valueOf(LocalDateTime.now()));
 
                 currentPacking = new CurrentPacking();
                 currentPacking.setCar(car);
@@ -203,6 +200,7 @@ public class ActionHistoryService {
                 return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "success");
             }
             else {
+                isBooked = currentPacking.getTicket() != null;
                 // action out
                 ResponseAction responseAction = new ResponseAction();
                 // tinh tien
