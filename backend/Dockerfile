@@ -4,9 +4,10 @@ FROM openjdk:17-jdk-alpine
 # Cài đặt Maven
 RUN apk add --no-cache maven
 
+WORKDIR /app
 # Copy mã nguồn vào container
-COPY . .
+COPY backend/app.jar /app/app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["./mvnw", "spring-boot:run"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

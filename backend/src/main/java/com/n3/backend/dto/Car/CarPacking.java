@@ -11,12 +11,12 @@ import java.util.List;
 
 public class CarPacking {
     private Car car;
-    private Ticket ticket;
+    private TicketType ticketType;
     private String createdAt;
 
-    public CarPacking(Car car, TicketEntity ticket, String createdAt) {
+    public CarPacking(Car car, TicketTypeEntity ticketType, String createdAt) {
         this.car = car;
-        this.ticket = new Ticket(ticket);
+        this.ticketType = new TicketType(ticketType);
         this.createdAt = createdAt;
     }
 
@@ -25,8 +25,10 @@ public class CarPacking {
                 currentPacking ->
                         new CarPacking(
                                 new Car(currentPacking.getCar()),
-                                currentPacking.getTicket(),
-                                DatetimeConvert.timastampToString(currentPacking.getCreatedAt()))).toList();
+                                currentPacking.getTicket().getInvoiceDetail().getTicketType(),
+                                DatetimeConvert.timastampToString(currentPacking.getCreatedAt())
+                        )
+                ).toList();
         return list;
     }
 
@@ -38,12 +40,12 @@ public class CarPacking {
         this.car = car;
     }
 
-    public Ticket getTicket() {
-        return ticket;
+    public TicketType getTicketType() {
+        return ticketType;
     }
 
-    public void setTicket(Ticket ticket) {
-        this.ticket = ticket;
+    public void setTicketType(TicketType ticketType) {
+        this.ticketType = ticketType;
     }
 
     public String getCreatedAt() {

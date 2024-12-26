@@ -168,7 +168,7 @@ public class ActionHistoryService {
 
             boolean isBooked = false;
 
-            if(currentPacking.getTicket() != null){
+            if(currentPacking != null && currentPacking.getTicket() != null){
                 isBooked = true;
             }
 
@@ -184,6 +184,7 @@ public class ActionHistoryService {
 
                 TicketEntity ticket = ticketRepository.findFirstByInvoiceDetailCarIdAndEndDateAfter(car.getId(), Timestamp.valueOf(LocalDateTime.now()));
 
+                currentPacking = new CurrentPacking();
                 currentPacking.setCar(car);
                 currentPacking.setTicket(ticket);
                 currentPackingRepository.save(currentPacking);
