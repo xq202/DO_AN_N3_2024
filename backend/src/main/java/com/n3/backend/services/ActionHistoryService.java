@@ -299,6 +299,13 @@ public class ActionHistoryService {
                     }
                 }
 
+                ActionHistoryEntity actionHistoryEntity = new ActionHistoryEntity();
+
+                actionHistoryEntity.setCar(car);
+                actionHistoryEntity.setAction(request.getAction());
+
+                repository.save(actionHistoryEntity);
+
                 return new ApiResponse(true, 200, responseAction, "success");
             }
         }
