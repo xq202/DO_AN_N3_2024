@@ -32,7 +32,7 @@ public class TicketService {
     @Autowired
     TicketRepository ticketRepository;
     @Autowired
-    TicketTypeRepository ticketTypeRepository;
+    TicketTypeService ticketTypeService;
     @Autowired
     CarService carService;
     @Autowired
@@ -163,6 +163,28 @@ public class TicketService {
         }
     }
 
+    public TicketEntity getTicketAvailableOfCar(int carId){
+        TicketEntity tickets = ticketRepository.findFirstByInvoiceDetailCarIdAndEndDateAfter(carId, Timestamp.valueOf(LocalDateTime.now()));
+
+        return tickets;
+    }
+
 //    @Scheduled(cron = "0 0 0 * * *")
     public void autoCheckExpiredTicket(){}
+
+    public boolean existsById(int ticketTypeId) {
+        return ticketRepository.existsById(ticketTypeId);
+    }
+
+    public TicketEntity findById(int id){
+        Optional<TicketEntity> ticketEntity = ticketRepository.findById(id);
+        if(ticketEntity.isPresent()){
+            return ticketEntity.get();
+        }
+        return null;
+    }
+
+    public TicketEntity save(TicketEntity ticketEntity) {
+        return ticketRepository.save(ticketEntity);
+    }
 }

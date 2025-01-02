@@ -33,7 +33,7 @@ public class ActionHistoryService {
     @Autowired
     private CarService carService;
     @Autowired
-    private PackingInformationRepository packingInformationRepository;
+    private PackingInformationService packingInformationService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -41,11 +41,11 @@ public class ActionHistoryService {
     @Autowired
     private InfoWebSocketHandler infoWebSocketHandler;
     @Autowired
-    private TicketRepository ticketRepository;
+    private TicketService ticketService;
     @Autowired
-    private TicketTypeRepository ticketTypeRepository;
+    private TicketTypeService ticketTypeService;
     @Autowired
-    private InvoiceRepository invoiceRepository;
+    private InvoiceService invoiceService;
     @Autowired
     private VNPayService vnpayService;
     @Autowired
@@ -134,7 +134,7 @@ public class ActionHistoryService {
 
     public ApiResponse addActionHistory(ActionHistoryRequest request){
         try {
-            PackingInformation packingInformation = packingInformationRepository.findFirst();
+            PackingInformation packingInformation = packingInformationService.getInformation();
 
             try {
                 // check action
@@ -171,7 +171,7 @@ public class ActionHistoryService {
             double price = 0;
 
             if(request.getAction().equals("IN")){
-                TicketEntity ticket = ticketRepository.findFirstByInvoiceDetailCarIdAndEndDateAfter(car.getId(), Timestamp.valueOf(LocalDateTime.now()));
+                TicketEntity ticket = ticketService.getTicketAvailableOfCar(car.getId());
                 isBooked = ticket != null;
 
                 if((isBooked ? packingInformation.getTotalSlotBookedAvailable() : packingInformation.getTotalSlotAvailable()) <= 0){
@@ -193,7 +193,7 @@ public class ActionHistoryService {
 
                 actionHistoryEntity = repository.save(actionHistoryEntity);
 
-                packingInformationRepository.save(packingInformation);
+                packingInformationService.save(packingInformation);
 
                 infoWebSocketHandler.sendSlotInfo();
 
@@ -214,7 +214,7 @@ public class ActionHistoryService {
                     double time = TimeUtil.minusTimestamp(currentPacking.getCreatedAt(), timeOut);
                     System.out.println("time: " + time);
 
-                    TicketTypeEntity ticketType = ticketTypeRepository.findFirstByType("hour");
+                    TicketTypeEntity ticketType = ticketTypeService.getFirstByType("hour");
                     price = time * ticketType.getPrice();
                     System.out.println("price: " + price);
 
@@ -228,7 +228,7 @@ public class ActionHistoryService {
 
                     invoiceEntity.setCreatedAt(currentPacking.getCreatedAt());
 
-                    invoiceEntity = invoiceRepository.save(invoiceEntity);
+                    invoiceEntity = invoiceService.save(invoiceEntity);
 
                     InvoiceDetailEntity invoiceDetailEntity = new InvoiceDetailEntity();
                     invoiceDetailEntity.setInvoiceId(invoiceEntity.getId());
@@ -247,7 +247,7 @@ public class ActionHistoryService {
                     if(currentPacking.getTicket().getEndDate().getTime() < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)){
                         double time = TimeUtil.minusTimestamp(currentPacking.getTicket().getEndDate(), Timestamp.valueOf(LocalDateTime.now()));
 
-                        TicketTypeEntity ticketType = ticketTypeRepository.findFirstByType("hour");
+                        TicketTypeEntity ticketType = ticketTypeService.getFirstByType("hour");
 
                         price = time * ticketType.getPrice();
 
@@ -261,7 +261,7 @@ public class ActionHistoryService {
 
                         invoiceEntity.setCreatedAt(currentPacking.getTicket().getEndDate());
 
-                        invoiceRepository.save(invoiceEntity);
+                        invoiceService.save(invoiceEntity);
 
                         InvoiceDetailEntity invoiceDetailEntity = new InvoiceDetailEntity();
 
@@ -289,7 +289,7 @@ public class ActionHistoryService {
                         // neu la ve thang thi cap nhat slot, xoa current parking, gui socket
                         packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + 1);
 
-                        packingInformationRepository.save(packingInformation);
+                        packingInformationService.save(packingInformation);
 
                         currentPacking = currentPackingRepository.findByCarId(car.getId());
 
@@ -312,21 +312,5 @@ public class ActionHistoryService {
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());
         }
-    }
-
-    public void actionCarOut(int carId)
-    {
-        System.out.println("actionCarOut");
-        PackingInformation packingInformation = packingInformationRepository.findFirst();
-
-        packingInformation.setTotalSlotAvailable(packingInformation.getTotalSlotAvailable() + 1);
-
-        packingInformationRepository.save(packingInformation);
-
-        CurrentPacking currentPacking = currentPackingRepository.findByCarId(carId);
-
-        currentPackingRepository.delete(currentPacking);
-
-        infoWebSocketHandler.sendSlotInfo();
     }
 }

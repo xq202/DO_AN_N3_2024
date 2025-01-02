@@ -61,4 +61,16 @@ public class UserService {
             return new ApiResponse(false, 500, null, e.getMessage());
         }
     }
+
+    public UserEntity save(UserEntity user){
+        return userRepository.save(user);
+    }
+
+    public boolean existsById(int id){
+        return userRepository.existsById(id);
+    }
+
+    public UserEntity getById(int id){
+        return userRepository.getOne(id);
+    }
 }

@@ -27,11 +27,9 @@ public class CarService {
     @Autowired
     private CarRepository repository;
     @Autowired
-    UserRepository userRepository;
-    @Autowired
     UserService userService;
     @Autowired
-    CurrentPackingRepository currentPackingRepository;
+    CurrentPackingService currentPackingService;
 
     public ApiResponse getAll(CarSearchRequest request){
         try{
@@ -100,7 +98,7 @@ public class CarService {
                 }
             }
             else {
-                if(!userRepository.existsById(car.getUserId())){
+                if(!userService.existsById(car.getUserId())){
                     return new ApiResponse<>(false, 400, null, "User is not exist");
                 }
             }
@@ -114,7 +112,7 @@ public class CarService {
             carEntity.setCode(car.getCode());
 
             if(currentUser.isAdmin()){
-                carEntity.setUser(userRepository.getOne(car.getUserId()));
+                carEntity.setUser(userService.getById(car.getUserId()));
             }
             else {
                 carEntity.setUser(currentUser);
@@ -148,7 +146,7 @@ public class CarService {
                 }
             }
             else {
-                if(!userRepository.existsById(car.getUserId())){
+                if(!userService.existsById(car.getUserId())){
                     return new ApiResponse<>(false, 400, null, "User is not exist");
                 }
             }
@@ -173,7 +171,7 @@ public class CarService {
                 return new ApiResponse(false, 400, null, "Car is not exist");
             }
 
-            CurrentPacking currentPacking = currentPackingRepository.findByCarId(id);
+            CurrentPacking currentPacking = currentPackingService.findByCarId(id);
             if(currentPacking != null){
                 return new ApiResponse(false, 400, null, "Car is parking, can't delete");
             }
@@ -194,19 +192,9 @@ public class CarService {
 
     public ApiResponse getCarParking(CarSearchRequest request){
         try {
-            UserEntity currentUser = userService.getCurrentUser();
-            Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), request.isReverse() ? Sort.by(Sort.Direction.DESC, request.getSort()) : Sort.by(Sort.Direction.ASC, request.getSort()));
+            DtoPage dtoPage = currentPackingService.getAllCarPacking(request);
 
-            Page data = currentPackingRepository.findAllCarPacking(request.getCode(), request.getEmail(), pageable);
-
-            List<CurrentPacking> listPacking = data.stream().toList();
-
-            List<CarPacking> list = CarPacking.listCarPacking(listPacking);
-
-            int totalPage = data.getTotalPages();
-            int totalItem = (int) data.getTotalElements();
-
-            return new ApiResponse(true, 200, new DtoPage(totalPage, request.getPage(), totalItem, list), "success");
+            return new ApiResponse(true, 200, dtoPage, "success");
         }
         catch (Exception e){
             return new ApiResponse(false, 500, null, e.getMessage());

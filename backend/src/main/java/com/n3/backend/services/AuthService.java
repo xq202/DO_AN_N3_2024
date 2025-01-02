@@ -19,11 +19,11 @@ import java.text.SimpleDateFormat;
 @Service
 public class AuthService {
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     public ApiResponse<LoginResponse> login(LoginRequest loginRequest){
 
-        UserEntity user = userRepository.getByEmail(loginRequest.getEmail());
+        UserEntity user = userService.getByEmail(loginRequest.getEmail());
         if(user != null){
             if(PasswordUtil.validatePassword(loginRequest.getPassword(), user.getPassword())){
                 JwtUtil jwtUtil = new JwtUtil();
@@ -44,7 +44,7 @@ public class AuthService {
 
     public ApiResponse<LoginResponse> register(RegisterRequest request){
         try {
-            UserEntity user = userRepository.getByEmail(request.getEmail());
+            UserEntity user = userService.getByEmail(request.getEmail());
             if (user == null) {
                 if (!PasswordUtil.isPasswordStrong(request.getPassword())) {
                     return new ApiResponse<>(false, 100, null, "valid password");
@@ -64,7 +64,7 @@ public class AuthService {
                     userNew.setPassword(PasswordUtil.encodePassword(request.getPassword()));
 
                     try {
-                        userRepository.save(userNew);
+                        userService.save(userNew);
                         JwtUtil jwtUtil = new JwtUtil();
 
                         String token = jwtUtil.generateToken(userNew.getEmail());

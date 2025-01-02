@@ -17,4 +17,12 @@ public class PackingInformationService {
 
         return slotInfo;
     }
+
+    public PackingInformation getInformation(){
+        return packingInformationRepository.findFirst();
+    }
+
+    public PackingInformation save(PackingInformation packingInformation){
+        return packingInformationRepository.save(packingInformation);
+    }
 }

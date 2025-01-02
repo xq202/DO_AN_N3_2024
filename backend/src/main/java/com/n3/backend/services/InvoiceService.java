@@ -30,19 +30,19 @@ public class InvoiceService {
     @Autowired
     private InvoiceDetailRepository invoiceDetailRepository;
     @Autowired
-    private TicketTypeRepository ticketTypeRepository;
+    private TicketTypeService ticketTypeService;
     @Autowired
-    private TicketRepository ticketRepository;
+    private TicketService ticketService;
     @Autowired
     private UserService userService;
     @Autowired
-    private PackingInformationRepository packingInformationRepository;
+    private PackingInformationService packingInformationService;
     @Autowired
     private VNPayService vnpayService;
     @Autowired
-    private ActionHistoryService actionHistoryService;
-    @Autowired
     private CarService carService;
+    @Autowired
+    CurrentPackingService currentPackingService;
 
     public ApiResponse getAll(InvoiceSearchRequest request){
         try {
@@ -58,6 +58,10 @@ public class InvoiceService {
         } catch (Exception e) {
             return new ApiResponse(false, 500, null, e.getMessage());
         }
+    }
+
+    public InvoiceEntity save(InvoiceEntity invoiceEntity){
+        return invoiceRepository.save(invoiceEntity);
     }
 
     public ApiResponse getOneById(int id){
@@ -103,7 +107,7 @@ public class InvoiceService {
     public ApiResponse addInvoice(InvoiceRequest request){
         try {
             // lay thong tin packing
-            PackingInformation packingInformation = packingInformationRepository.findFirst();
+            PackingInformation packingInformation = packingInformationService.getInformation();
 
             // khoi tao invoice
             InvoiceEntity invoiceEntity = new InvoiceEntity();
@@ -142,10 +146,10 @@ public class InvoiceService {
                 int carId = product.getCarId();
 
                 //kiem tra ticket type co ton tai khong
-                if(!ticketTypeRepository.existsById(ticketTypeId)){
+                if(!ticketService.existsById(ticketTypeId)){
                     return new ApiResponse(false, 400, null, "Ticket type not found");
                 }
-                TicketTypeEntity ticketTypeEntity = ticketTypeRepository.getOne(ticketTypeId);
+                TicketTypeEntity ticketTypeEntity = ticketTypeService.getOne(ticketTypeId);
 
                 if(ticketTypeEntity.getType().equals("hour")){
                     return new ApiResponse(false, 400, null, "Ticket type not is hour when buy ticket");
@@ -188,7 +192,7 @@ public class InvoiceService {
                 // thanh toan online thi luu slot truoc
                 packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() + products.size());
                 packingInformation.setTotalSlotBookedAvailable(packingInformation.getTotalSlotBookedAvailable() + products.size());
-                packingInformationRepository.save(packingInformation);
+                packingInformationService.save(packingInformation);
 
                 String url = vnpayService.createLink(invoiceEntity.getTotal(), invoiceEntity.getCode(), Constants.FeUrl, invoiceEntity.getCode(), null);
                 ResponseAction responseAction = new ResponseAction();
@@ -213,7 +217,7 @@ public class InvoiceService {
             UserEntity currentUser = userService.getCurrentUser();
 
             // lay thong tin packing
-            PackingInformation packingInformation = packingInformationRepository.findFirst();
+            PackingInformation packingInformation = packingInformationService.getInformation();
 
             //kiem tra invoice co ton tai khong
             if(!invoiceRepository.existsById(id)){
@@ -263,7 +267,7 @@ public class InvoiceService {
 //            }
 
             //luu lai so luong slot da dat
-            packingInformationRepository.save(packingInformation);
+            packingInformationService.save(packingInformation);
 
             //duyet qua tung invoice detail
             for (InvoiceDetailEntity invoiceDetailEntity : invoiceEntities) {
@@ -277,7 +281,7 @@ public class InvoiceService {
                 //cong tien vao tong tien invoice
                 total += invoiceDetailEntity.getPrice();
                 //luu lai ticket
-                ticketRepository.save(ticketEntity);
+                ticketService.save(ticketEntity);
             }
             //active invoice
             invoiceEntity.setStatus(1);
@@ -320,22 +324,22 @@ public class InvoiceService {
                     startDate = invoice.getCreatedAt();
                     endDate = Timestamp.valueOf(LocalDateTime.now());
 
-                    actionHistoryService.actionCarOut(ticketEntity.getInvoiceDetail().getCar().getId());
+                    currentPackingService.actionCarOut(ticketEntity.getInvoiceDetail().getCar().getId());
                 } else {
                     startDate = Timestamp.valueOf(LocalDateTime.now());
                     endDate = Timestamp.valueOf(LocalDateTime.now().plusDays(30));
                 }
                 ticketEntity.setStartDate(startDate);
                 ticketEntity.setEndDate(endDate);
-                ticketRepository.save(ticketEntity);
+                ticketService.save(ticketEntity);
             }
 
             invoiceRepository.save(invoice);
         }
         else {
-            PackingInformation packingInformation = packingInformationRepository.findFirst();
+            PackingInformation packingInformation = packingInformationService.getInformation();
             packingInformation.setTotalSlotBooked(packingInformation.getTotalSlotBooked() - invoiceDetailEntityList.size());
-            packingInformationRepository.save(packingInformation);
+            packingInformationService.save(packingInformation);
         }
     }
 }

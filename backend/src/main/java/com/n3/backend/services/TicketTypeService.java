@@ -87,4 +87,11 @@ public class TicketTypeService {
         }
     }
 
+    public TicketTypeEntity getFirstByType(String type){
+        return repository.findFirstByType(type);
+    }
+
+    public TicketTypeEntity getOne(int id){
+        return repository.getOne(id);
+    }
 }
