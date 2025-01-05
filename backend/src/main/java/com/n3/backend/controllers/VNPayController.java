@@ -49,6 +49,7 @@ public class VNPayController {
             String signValue = vnpayConfig.hashAllFields(fields);
             if (signValue.equals(vnp_SecureHash)) {
                 invoiceService.activeOnlineByCode(fields.get("vnp_TxnRef").toString(), fields.get("vnp_ResponseCode").toString());
+
             } else {
                 return new VnpResponse("97", "Invalid Checksum");
             }

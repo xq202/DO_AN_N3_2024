@@ -197,7 +197,11 @@ public class ActionHistoryService {
 
                 infoWebSocketHandler.sendSlotInfo();
 
-                return new ApiResponse(true, 200, new ActionHistory(actionHistoryEntity), "success");
+                ResponseAction responseAction = new ResponseAction();
+                responseAction.setAction("OPEN");
+                responseAction.setUrl(null);
+
+                return new ApiResponse(true, 200, responseAction, "success");
             }
             else {
                 isBooked = currentPacking.getTicket() != null;

@@ -47,6 +47,13 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
+    public static String generateTokenForver(String subject){
+        return Jwts.builder()
+                .setSubject(subject)
+                .setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encodeToString("DO_AN_N3_2024_DO_AN_N3_2024_DO_AN_N3_2024".getBytes()))
+                .compact();
+    }
 
     public String getSubjectByToken(String token){
         return getClaimFromToken(token, Claims::getSubject);
@@ -54,6 +61,10 @@ public class JwtUtil {
 
     public boolean isTokenExpired(String token){
         Date expiration = getClaimFromToken(token, Claims::getExpiration);
+
+        if(expiration == null){
+            return false;
+        }
         return expiration.before(new Date());
     }
 

@@ -31,7 +31,6 @@ public class ActionHistoryController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<ResponseAction> add(@RequestBody ActionHistoryRequest request){
         return actionHistoryService.addActionHistory(request);
     }

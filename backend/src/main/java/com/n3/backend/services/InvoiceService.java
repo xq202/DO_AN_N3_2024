@@ -43,6 +43,8 @@ public class InvoiceService {
     private CarService carService;
     @Autowired
     CurrentPackingService currentPackingService;
+    @Autowired
+    private GateService gateService;
 
     public ApiResponse getAll(InvoiceSearchRequest request){
         try {
@@ -335,6 +337,8 @@ public class InvoiceService {
             }
 
             invoiceRepository.save(invoice);
+
+            gateService.openGate();
         }
         else {
             PackingInformation packingInformation = packingInformationService.getInformation();

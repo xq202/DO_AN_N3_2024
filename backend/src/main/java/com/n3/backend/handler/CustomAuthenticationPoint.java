@@ -18,7 +18,7 @@ public class CustomAuthenticationPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         Map<String, Object> data = Map.of(
                 "status", false,
-                "resposeCode", 401,
+                "responseCode", 401,
                 "message", "Unauthorized"
         );
         response.getOutputStream().println((new ObjectMapper().writeValueAsString(data)));
