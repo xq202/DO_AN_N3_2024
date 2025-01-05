@@ -52,7 +52,6 @@ public class ApiSecurityConfig {
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/vnpay/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
-                .requestMatchers("/action-history").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
